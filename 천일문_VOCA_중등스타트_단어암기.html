@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>천일문 VOCA 중등 스타트 - 단어 암기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* 공통 카드 스타일 */
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .card-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .card-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        /* DAY 선택 화면 */
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .day-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .day-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .day-btn .day-num {
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .day-btn .day-theme {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        /* 오답노트 버튼 */
+        .wrong-note-btn {
+            width: 100%;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .wrong-note-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .wrong-note-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .wrong-count-badge {
+            background: white;
+            color: #ef4444;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* 모드 선택 버튼들 */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .mode-btn.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .mode-btn .mode-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .mode-btn .mode-title {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        
+        .mode-btn .mode-desc {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+        
+        .back-btn {
+            width: 100%;
+            margin-top: 12px;
+            background: #e5e7eb;
+            color: #333;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #d1d5db;
+        }
+        
+        /* 진행바 */
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #4ade80;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: white;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        /* 상단 네비게이션 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .current-day {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        /* 학습 카드 - 단어+뜻 함께 */
+        .study-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .speak-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .speak-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.1);
+        }
+        
+        .speak-btn.large {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            margin-bottom: 25px;
+        }
+        
+        .meaning-display {
+            font-size: 1.25rem;
+            color: #555;
+            line-height: 1.8;
+            white-space: pre-line;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .study-nav-btns {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .study-nav-btns button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .prev-btn {
+            background: #e5e7eb;
+            color: #333;
+        }
+        
+        .next-btn {
+            background: #4ade80;
+            color: white;
+        }
+        
+        .next-btn:hover {
+            background: #22c55e;
+        }
+        
+        /* 테스트 카드 */
+        .test-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .test-card .word-display {
+            margin-bottom: 5px;
+        }
+        
+        /* 역방향 테스트용 - 뜻 표시 */
+        .question-meaning {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-line;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        /* 객관식 보기 */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .choice-btn {
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: all 0.2s ease;
+            line-height: 1.5;
+        }
+        
+        .choice-btn:hover:not(.disabled) {
+            background: #e5e7eb;
+            border-color: #667eea;
+        }
+        
+        .choice-btn.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+        
+        .choice-btn.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .choice-btn.disabled {
+            cursor: default;
+        }
+        
+        .choice-btn .choice-number {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-weight: 600;
+            margin-right: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .choice-btn.correct .choice-number {
+            background: #22c55e;
+        }
+        
+        .choice-btn.wrong .choice-number {
+            background: #ef4444;
+        }
+        
+        /* 타이머 */
+        .timer-container {
+            margin-bottom: 15px;
+        }
+        
+        .timer-bar {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .timer-fill {
+            background: linear-gradient(90deg, #4ade80 0%, #fbbf24 50%, #ef4444 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+        
+        .timer-text {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-top: 8px;
+        }
+        
+        .timer-text.warning {
+            color: #f59e0b;
+        }
+        
+        .timer-text.danger {
+            color: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 결과 화면 */
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .result-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 25px 0;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-num {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .stat-num.correct {
+            color: #22c55e;
+        }
+        
+        .stat-num.wrong {
+            color: #ef4444;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .result-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .result-btns button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .review-wrong-btn {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: white;
+        }
+        
+        .review-wrong-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .retry-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 완벽 점수 */
+        .perfect-score {
+            animation: celebrate 0.6s ease;
+        }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* 오답노트 화면 */
+        .wrong-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .wrong-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .wrong-item-word {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .wrong-item-meaning {
+            font-size: 0.9rem;
+            color: #666;
+            flex: 1;
+            margin-left: 15px;
+            text-align: left;
+        }
+        
+        .wrong-item-delete {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+        }
+        
+        .wrong-item-delete:hover {
+            color: #ef4444;
+        }
+        
+        .clear-all-btn {
+            width: 100%;
+            margin-top: 15px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .clear-all-btn:hover {
+            background: #fecaca;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .word-display {
+                font-size: 2rem;
+            }
+            
+            .day-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-stats {
+                gap: 20px;
+            }
+            
+            .stat-num {
+                font-size: 2rem;
+            }
+            
+            .choice-btn {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index:9999; padding:20px;">
+            <div style="background:white; border-radius:20px; padding:30px; max-width:400px; margin:50px auto; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+                <div style="font-size:3rem; margin-bottom:15px;">⚠️</div>
+                <h2 style="color:#333; margin-bottom:15px; font-size:1.3rem;">Safari에서 열어주세요!</h2>
+                <p style="color:#666; margin-bottom:20px; line-height:1.6;">카카오톡에서는 작동하지 않습니다.</p>
+                <div style="background:#f0f9ff; border-radius:12px; padding:15px; text-align:left;">
+                    <p style="color:#333; font-size:0.95rem; margin-bottom:10px;"><strong>📱 iPhone:</strong></p>
+                    <p style="color:#555; font-size:0.9rem; line-height:1.8; margin-bottom:15px;">
+                        1. 우측 하단 <strong>⋯</strong> 클릭<br>
+                        2. <strong>"Safari로 열기"</strong> 선택
+                    </p>
+                    <p style="color:#333; font-size:0.95rem; margin-bottom:10px;"><strong>📱 Android:</strong></p>
+                    <p style="color:#555; font-size:0.9rem; line-height:1.8;">
+                        1. 우측 상단 <strong>⋮</strong> 클릭<br>
+                        2. <strong>"다른 브라우저로 열기"</strong> 선택
+                    </p>
+                </div>
+            </div>
+        </div>
+    </noscript>
+    <!-- 카카오톡 인앱 브라우저 안내 -->
+    <div id="kakaoAlert" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index:9999; padding:20px;">
+        <div style="background:white; border-radius:20px; padding:30px; max-width:400px; margin:50px auto; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+            <div style="font-size:3rem; margin-bottom:15px;">⚠️</div>
+            <h2 style="color:#333; margin-bottom:15px; font-size:1.3rem;">Safari에서 열어주세요</h2>
+            <p style="color:#666; margin-bottom:20px; line-height:1.6;">카카오톡 브라우저에서는<br>일부 기능이 작동하지 않습니다.</p>
+            <div style="background:#f8f9fa; border-radius:12px; padding:15px; margin-bottom:20px;">
+                <p style="color:#333; font-size:0.95rem; margin-bottom:10px;"><strong>열기 방법:</strong></p>
+                <p style="color:#555; font-size:0.9rem; line-height:1.8;">
+                    1. 우측 하단 <strong>⋯</strong> 버튼 클릭<br>
+                    2. <strong>"Safari로 열기"</strong> 선택
+                </p>
+            </div>
+            <button onclick="document.getElementById('kakaoAlert').style.display='none'" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; padding:12px 30px; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer;">그래도 계속하기</button>
+        </div>
+    </div>
+    <script>
+        // 카카오톡 인앱 브라우저 감지
+        (function() {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.indexOf('kakaotalk') > -1) {
+                document.getElementById('kakaoAlert').style.display = 'block';
+            }
+        })();
+    </script>
+    
+    <div class="container">
+        <div class="header">
+            <img src="data:image/jpeg;base64,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" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.8);box-shadow:0 4px 15px rgba(0,0,0,0.2);margin-bottom:12px;" alt="Gospel Kang"><h1>천일문 VOCA 중등 스타트</h1>
+            <p>뜻 암기 중심 학습 프로그램</p>
+            <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 8px;">Made by Gospel Kang</p>
+        </div>
+        
+        <!-- DAY 선택 화면 -->
+        <div class="screen active" id="daySelectScreen">
+            <div class="card-container">
+                <h2>학습할 DAY를 선택하세요</h2>
+                <div class="day-grid" id="dayGrid">
+                    <button class="day-btn" onclick="selectDay('day01')"><span class="day-num">DAY 1</span><span class="day-theme">사람 묘사 I</span></button>
+                    <button class="day-btn" onclick="selectDay('day02')"><span class="day-num">DAY 2</span><span class="day-theme">사람 묘사Ⅱ</span></button>
+                    <button class="day-btn" onclick="selectDay('day03')"><span class="day-num">DAY 3</span><span class="day-theme">기분, 감정Ⅰ</span></button>
+                    <button class="day-btn" onclick="selectDay('day04')"><span class="day-num">DAY 4</span><span class="day-theme">기분, 감정 Ⅱ</span></button>
+                    <button class="day-btn" onclick="selectDay('day05')"><span class="day-num">DAY 5</span><span class="day-theme">관계, 직업</span></button>
+                    <button class="day-btn" onclick="selectDay('day06')"><span class="day-num">DAY 6</span><span class="day-theme">행동, 동작Ⅰ</span></button>
+                    <button class="day-btn" onclick="selectDay('day07')"><span class="day-num">DAY 7</span><span class="day-theme">행동, 동작 Ⅱ</span></button>
+                    <button class="day-btn" onclick="selectDay('day08')"><span class="day-num">DAY 8</span><span class="day-theme">사고, 생각</span></button>
+                    <button class="day-btn" onclick="selectDay('day09')"><span class="day-num">DAY 9</span><span class="day-theme">의사소통</span></button>
+                    <button class="day-btn" onclick="selectDay('day10')"><span class="day-num">DAY 10</span><span class="day-theme">의미를 더해주는 어휘</span></button>
+                    <button class="day-btn" onclick="selectDay('day11')"><span class="day-num">DAY 11</span><span class="day-theme">옷</span></button>
+                    <button class="day-btn" onclick="selectDay('day12')"><span class="day-num">DAY 12</span><span class="day-theme">음식</span></button>
+                    <button class="day-btn" onclick="selectDay('day13')"><span class="day-num">DAY 13</span><span class="day-theme">집</span></button>
+                    <button class="day-btn" onclick="selectDay('day14')"><span class="day-num">DAY 14</span><span class="day-theme">집 안의 물건</span></button>
+                    <button class="day-btn" onclick="selectDay('day15')"><span class="day-num">DAY 15</span><span class="day-theme">집안일</span></button>
+                    <button class="day-btn" onclick="selectDay('day16')"><span class="day-num">DAY 16</span><span class="day-theme">동네, 장소</span></button>
+                    <button class="day-btn" onclick="selectDay('day17')"><span class="day-num">DAY 17</span><span class="day-theme">교통수단</span></button>
+                    <button class="day-btn" onclick="selectDay('day18')"><span class="day-num">DAY 18</span><span class="day-theme">모양, 상태 Ⅰ</span></button>
+                    <button class="day-btn" onclick="selectDay('day19')"><span class="day-num">DAY 19</span><span class="day-theme">모양, 상태 Ⅱ</span></button>
+                    <button class="day-btn" onclick="selectDay('day20')"><span class="day-num">DAY 20</span><span class="day-theme">수, 양, 빈도</span></button>
+                    <button class="day-btn" onclick="selectDay('day21')"><span class="day-num">DAY 21</span><span class="day-theme">시간, 순서</span></button>
+                    <button class="day-btn" onclick="selectDay('day22')"><span class="day-num">DAY 22</span><span class="day-theme">방향, 위치</span></button>
+                    <button class="day-btn" onclick="selectDay('day23')"><span class="day-num">DAY 23</span><span class="day-theme">학교 일상</span></button>
+                    <button class="day-btn" onclick="selectDay('day24')"><span class="day-num">DAY 24</span><span class="day-theme">수업Ⅰ</span></button>
+                    <button class="day-btn" onclick="selectDay('day25')"><span class="day-num">DAY 25</span><span class="day-theme">수업Ⅱ</span></button>
+                    <button class="day-btn" onclick="selectDay('day26')"><span class="day-num">DAY 26</span><span class="day-theme">학교 활동</span></button>
+                    <button class="day-btn" onclick="selectDay('day27')"><span class="day-num">DAY 27</span><span class="day-theme">학교 고민</span></button>
+                    <button class="day-btn" onclick="selectDay('day28')"><span class="day-num">DAY 28</span><span class="day-theme">특별한 날</span></button>
+                    <button class="day-btn" onclick="selectDay('day29')"><span class="day-num">DAY 29</span><span class="day-theme">취미, 관심사</span></button>
+                    <button class="day-btn" onclick="selectDay('day30')"><span class="day-num">DAY 30</span><span class="day-theme">쇼핑, 외식</span></button>
+                    <button class="day-btn" onclick="selectDay('day31')"><span class="day-num">DAY 31</span><span class="day-theme">여행</span></button>
+                    <button class="day-btn" onclick="selectDay('day32')"><span class="day-num">DAY 32</span><span class="day-theme">스포츠, 운동</span></button>
+                    <button class="day-btn" onclick="selectDay('day33')"><span class="day-num">DAY 33</span><span class="day-theme">건강, 질병</span></button>
+                    <button class="day-btn" onclick="selectDay('day34')"><span class="day-num">DAY 34</span><span class="day-theme">미술, 문학</span></button>
+                    <button class="day-btn" onclick="selectDay('day35')"><span class="day-num">DAY 35</span><span class="day-theme">음악, 대중문화</span></button>
+                    <button class="day-btn" onclick="selectDay('day36')"><span class="day-num">DAY 36</span><span class="day-theme">동물</span></button>
+                    <button class="day-btn" onclick="selectDay('day37')"><span class="day-num">DAY 37</span><span class="day-theme">동식물 묘사</span></button>
+                    <button class="day-btn" onclick="selectDay('day38')"><span class="day-num">DAY 38</span><span class="day-theme">자연, 자연 장소</span></button>
+                    <button class="day-btn" onclick="selectDay('day39')"><span class="day-num">DAY 39</span><span class="day-theme">날씨, 계절</span></button>
+                    <button class="day-btn" onclick="selectDay('day40')"><span class="day-num">DAY 40</span><span class="day-theme">사회, 세계</span></button>
+                </div>
+                <button class="wrong-note-btn" id="wrongNoteBtn" onclick="showWrongNote()">
+                    📝 오답노트 <span class="wrong-count-badge" id="wrongNoteBadge">0</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 모드 선택 화면 -->
+        <div class="screen" id="modeSelectScreen">
+            <div class="card-container">
+                <h2 id="selectedDayTitle">DAY 01 사람 묘사</h2>
+                <p style="text-align:center; color:#666; margin-bottom:20px;" id="wordCountText">25개 단어</p>
+                <div class="mode-grid">
+                    <button class="mode-btn" onclick="startStudy()">
+                        <span class="mode-icon">📖</span>
+                        <span class="mode-title">학습</span>
+                        <span class="mode-desc">단어+뜻 확인</span>
+                    </button>
+                    <button class="mode-btn" onclick="startTest('normal')">
+                        <span class="mode-icon">✏️</span>
+                        <span class="mode-title">테스트</span>
+                        <span class="mode-desc">단어→뜻</span>
+                    </button>
+                    <button class="mode-btn" onclick="startTest('reverse')">
+                        <span class="mode-icon">🔄</span>
+                        <span class="mode-title">역방향</span>
+                        <span class="mode-desc">뜻→단어</span>
+                    </button>
+                    <button class="mode-btn" onclick="startTest('listening')">
+                        <span class="mode-icon">🎧</span>
+                        <span class="mode-title">듣기</span>
+                        <span class="mode-desc">발음→뜻</span>
+                    </button>
+                    <button class="mode-btn full-width" onclick="startTest('speed')">
+                        <span class="mode-icon">⚡</span>
+                        <span class="mode-title">스피드 모드</span>
+                        <span class="mode-desc">5초 안에 맞춰라!</span>
+                    </button>
+                </div>
+                <button class="back-btn" onclick="showDaySelect()">← DAY 선택으로</button>
+            </div>
+        </div>
+        
+        <!-- 학습 화면 -->
+        <div class="screen" id="studyScreen">
+            <div class="top-nav">
+                <button class="nav-btn" onclick="showModeSelect()">← 뒤로</button>
+                <span class="current-day" id="studyDayLabel">DAY 01</span>
+                <button class="nav-btn" onclick="startTest('normal')">테스트 →</button>
+            </div>
+            
+            <div class="progress-text" id="studyProgress">1 / 25</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="studyProgressBar"></div>
+            </div>
+            
+            <div class="study-card">
+                <div class="word-display" id="studyWord">ability</div>
+                <button class="speak-btn" onclick="speakCurrentWord()" title="발음 듣기">🔊</button>
+                <div class="meaning-display" id="studyMeaning">[명] 능력</div>
+                <div class="study-nav-btns">
+                    <button class="prev-btn" onclick="prevStudyWord()">← 이전</button>
+                    <button class="next-btn" onclick="nextStudyWord()">다음 →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 테스트 화면 -->
+        <div class="screen" id="testScreen">
+            <div class="top-nav">
+                <button class="nav-btn" onclick="exitTest()">✕ 종료</button>
+                <span class="current-day" id="testDayLabel">DAY 01</span>
+                <span class="current-day" id="testModeLabel">테스트</span>
+            </div>
+            
+            <div class="progress-text" id="testProgress">1 / 25</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="testProgressBar"></div>
+            </div>
+            
+            <!-- 스피드 모드 타이머 -->
+            <div class="timer-container" id="timerContainer" style="display:none;">
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timerFill"></div>
+                </div>
+                <div class="timer-text" id="timerText">5.0</div>
+            </div>
+            
+            <div class="test-card">
+                <!-- 일반/스피드: 단어 표시 -->
+                <div id="normalQuestion">
+                    <div class="word-display" id="testWord">ability</div>
+                    <button class="speak-btn" onclick="speakCurrentWord()" title="발음 듣기">🔊</button>
+                </div>
+                
+                <!-- 역방향: 뜻 표시 -->
+                <div id="reverseQuestion" style="display:none;">
+                    <div class="question-meaning" id="testMeaning">[명] 능력</div>
+                </div>
+                
+                <!-- 듣기: 스피커만 -->
+                <div id="listeningQuestion" style="display:none;">
+                    <button class="speak-btn large" onclick="speakCurrentWord()" title="다시 듣기">🔊</button>
+                    <p style="color:#666; margin-bottom:20px;">발음을 듣고 뜻을 고르세요</p>
+                </div>
+                
+                <div class="choices-container" id="choicesContainer"></div>
+            </div>
+        </div>
+        
+        <!-- 결과 화면 -->
+        <div class="screen" id="resultScreen">
+            <div class="result-card">
+                <div class="result-icon" id="resultIcon">🎉</div>
+                <div class="result-title" id="resultTitle">테스트 완료!</div>
+                <div class="result-subtitle" id="resultSubtitle"></div>
+                <div class="result-stats">
+                    <div class="stat">
+                        <div class="stat-num correct" id="correctCount">20</div>
+                        <div class="stat-label">정답</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num wrong" id="wrongCount">5</div>
+                        <div class="stat-label">오답</div>
+                    </div>
+                </div>
+                <div class="result-btns">
+                    <button class="review-wrong-btn" id="reviewWrongBtn" onclick="reviewWrongWords()">
+                        📝 틀린 단어 학습하기
+                    </button>
+                    <button class="retry-btn" onclick="retryTest()">🔄 다시 테스트</button>
+                    <button class="back-btn" onclick="showModeSelect()">← 모드 선택</button>
+                    <button class="back-btn" onclick="showDaySelect()">← DAY 선택</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 오답노트 화면 -->
+        <div class="screen" id="wrongNoteScreen">
+            <div class="card-container">
+                <h2>📝 오답노트</h2>
+                <div class="wrong-list" id="wrongList"></div>
+                <button class="mode-btn full-width" id="studyWrongBtn" onclick="studyWrongNote()" style="margin-top:15px;">
+                    <span class="mode-icon">📖</span>
+                    <span class="mode-title">오답 학습하기</span>
+                </button>
+                <button class="mode-btn full-width" id="testWrongBtn" onclick="testWrongNote()" style="margin-top:10px;">
+                    <span class="mode-icon">✏️</span>
+                    <span class="mode-title">오답 테스트</span>
+                </button>
+                <button class="clear-all-btn" id="clearAllBtn" onclick="clearWrongNote()">🗑️ 전체 삭제</button>
+                <button class="back-btn" onclick="showDaySelect()">← 돌아가기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 데이터 ============
+        const vocabData = {
+  "day01": {
+    "title": "DAY 01 사람 묘사 I ",
+    "words": [
+      {"word": "head", "meaning": "[명] 머리, 고개"},
+      {"word": "hair", "meaning": "[명] 1. 머리(카락) 2. 털"},
+      {"word": "face", "meaning": "[명] 얼굴"},
+      {"word": "lip", "meaning": "[명] 입술"},
+      {"word": "tooth", "meaning": "[명] 이, 치아"},
+      {"word": "skin", "meaning": "[명] 피부"},
+      {"word": "voice", "meaning": "[명] 목소리"},
+      {"word": "tall", "meaning": "[형] 1. 키가 큰, 높은 2. 키가 ~인"},
+      {"word": "cute", "meaning": "[형] 귀여운"},
+      {"word": "pretty", "meaning": "[형] 예쁜"},
+      {"word": "beautiful", "meaning": "[형] 아름다운"},
+      {"word": "handsome", "meaning": "[형] 잘생긴, 멋진"},
+      {"word": "body", "meaning": "[명] 몸, 신체"},
+      {"word": "neck", "meaning": "[명] 목"},
+      {"word": "hand", "meaning": "[명] 손"},
+      {"word": "finger", "meaning": "[명] 손가락"},
+      {"word": "toe", "meaning": "[명] 발가락"},
+      {"word": "nail", "meaning": "[명] 손톱, 발톱"},
+      {"word": "child", "meaning": "[명] 1. 아이, 어린이 2. 자식"},
+      {"word": "person", "meaning": "[명] 사람, 개인"},
+    ]
+  },
+  "day02": {
+    "title": "DAY 02 사람 묘사Ⅱ ",
+    "words": [
+      {"word": "name", "meaning": "[명] 이름"},
+      {"word": "old", "meaning": "[형] 1. 늙은 2. 나이가 ~인 3. 낡은, 오래된"},
+      {"word": "young", "meaning": "[형] 어린, 젊은"},
+      {"word": "age", "meaning": "[명] 나이"},
+      {"word": "kind", "meaning": "[형] 친절한, 상냥한 [명] 종류, 유형"},
+      {"word": "brave", "meaning": "[형] 용감한"},
+      {"word": "smart", "meaning": "[형] 똑똑한"},
+      {"word": "shy", "meaning": "[형] 수줍은, 부끄럼을 많이 타는"},
+      {"word": "quiet", "meaning": "[형] 조용한"},
+      {"word": "lazy", "meaning": "[형] 게으른"},
+      {"word": "strong", "meaning": "[형] 힘이 센, 강한"},
+      {"word": "busy", "meaning": "[형] 바쁜"},
+      {"word": "ready", "meaning": "[형] 준비가 된"},
+      {"word": "hungry", "meaning": "[형] 배고픈"},
+      {"word": "thirsty", "meaning": "[형] 목마른"},
+      {"word": "rich", "meaning": "[형] 부유한, 돈 많은, 부자인"},
+      {"word": "popular", "meaning": "[형] 인기 있는, 대중적인"},
+      {"word": "famous", "meaning": "[형] 유명한"},
+      {"word": "be[come] from", "meaning": "~ 출신이다"},
+      {"word": "be born", "meaning": "태어나다"},
+    ]
+  },
+  "day03": {
+    "title": "DAY 03 기분, 감정Ⅰ ",
+    "words": [
+      {"word": "happy", "meaning": "[형] 행복한"},
+      {"word": "sad", "meaning": "[형] 슬픈, 슬퍼하는"},
+      {"word": "glad", "meaning": "[형] 기쁜, 반가운"},
+      {"word": "great", "meaning": "[형] 정말 좋은, 대단한"},
+      {"word": "all right/alright", "meaning": "[형] 괜찮은 (= okay)"},
+      {"word": "angry", "meaning": "[형] 화가 난, 화난"},
+      {"word": "sorry", "meaning": "[형] 1. 미안한 2. 유감스러운"},
+      {"word": "upset", "meaning": "[형] 속상한, 마음 상한"},
+      {"word": "afraid", "meaning": "[형] 두려워하는, 걱정하는"},
+      {"word": "scared", "meaning": "[형] 무서워하는, 겁먹은"},
+      {"word": "tired", "meaning": "[형] 피곤한, 지친"},
+      {"word": "bored", "meaning": "[형] 지루한, 지루해하는"},
+      {"word": "excited", "meaning": "[형] 신이 난, 흥분한"},
+      {"word": "surprised", "meaning": "[형] 놀란, 놀라는"},
+      {"word": "lonely", "meaning": "[형] 외로운, 쓸쓸한"},
+      {"word": "calm", "meaning": "[형] 차분한, 침착한"},
+      {"word": "nervous", "meaning": "[형] 긴장한, 초조한"},
+      {"word": "feel better", "meaning": "몸[기분]이 좋아지다"},
+      {"word": "be proud of", "meaning": "~을 자랑스러워하다"},
+      {"word": "long face", "meaning": "우울한 얼굴"},
+    ]
+  },
+  "day04": {
+    "title": "DAY 04 기분, 감정 Ⅱ",
+    "words": [
+      {"word": "like", "meaning": "[동] 좋아하다 [전] 1. ~처럼 2. ~와 같은"},
+      {"word": "hate", "meaning": "[동] 몹시 싫어하다, 미워하다"},
+      {"word": "cry", "meaning": "[동] 1. 울다 2. 외치다"},
+      {"word": "worry", "meaning": "[동] 걱정하다, 걱정하게 만들다"},
+      {"word": "smile", "meaning": "[동] 미소 짓다, 웃다 [명] 미소"},
+      {"word": "laugh", "meaning": "[동] (소리 내어) 웃다"},
+      {"word": "joy", "meaning": "[명] 기쁨, 환희"},
+      {"word": "fun", "meaning": "[명] 재미 [형] 재미있는"},
+      {"word": "funny", "meaning": "[형] 웃기는, 우스운"},
+      {"word": "scary", "meaning": "[형] 무서운"},
+      {"word": "terrible", "meaning": "[형] 끔찍한, 무서운"},
+      {"word": "strange", "meaning": "[형] 1. 이상한 2. 낯선"},
+      {"word": "fantastic", "meaning": "[형] 환상적인"},
+      {"word": "wonderful", "meaning": "[형] 아주 멋진, 훌륭한"},
+      {"word": "amazing", "meaning": "[형] 놀라운, 굉장한"},
+      {"word": "interesting", "meaning": "[형] 흥미로운, 재미있는"},
+      {"word": "boring", "meaning": "[형] 지루한, 재미없는"},
+      {"word": "exciting", "meaning": "[형] 신나는, 흥분시키는"},
+      {"word": "surprising", "meaning": "[형] 놀라운"},
+      {"word": "fall in love (with)", "meaning": "(~와) 사랑에 빠지다"},
+    ]
+  },
+  "day05": {
+    "title": "DAY 05 관계, 직업",
+    "words": [
+      {"word": "friend", "meaning": "[명] 친구"},
+      {"word": "family", "meaning": "[명] 가족"},
+      {"word": "son", "meaning": "[명] 아들"},
+      {"word": "daughter", "meaning": "[명] 딸"},
+      {"word": "parent", "meaning": "[명] 부모"},
+      {"word": "husband", "meaning": "[명] 남편"},
+      {"word": "wife", "meaning": "[명] 아내"},
+      {"word": "aunt", "meaning": "[명] 이모, 고모, (외)숙모"},
+      {"word": "cousin", "meaning": "[명] 사촌"},
+      {"word": "pet", "meaning": "[명] 반려동물"},
+      {"word": "job", "meaning": "[명] 일, 직장, 일자리"},
+      {"word": "become", "meaning": "[동] ~이 되다, ~해지다"},
+      {"word": "farmer", "meaning": "[명] 농부"},
+      {"word": "writer", "meaning": "[명] 작가"},
+      {"word": "reporter", "meaning": "[명] 기자, 리포터"},
+      {"word": "firefighter", "meaning": "[명] 소방관"},
+      {"word": "police", "meaning": "[명] 경찰"},
+      {"word": "scientist", "meaning": "[명] 과학자"},
+      {"word": "pilot", "meaning": "[명] 조종사, 비행사"},
+      {"word": "take care of", "meaning": "~을 돌보다"},
+    ]
+  },
+  "day06": {
+    "title": "DAY 06 행동, 동작Ⅰ",
+    "words": [
+      {"word": "see", "meaning": "[동] 1. 보다 2. 알다, 이해하다"},
+      {"word": "watch", "meaning": "[동] 보다, 지켜보다 [명] 손목시계"},
+      {"word": "look", "meaning": "[동] 1. 보다 2. ~하게 보이다"},
+      {"word": "sound", "meaning": "[동] ~하게 들리다, ~인 것 같다 [명] 소리"},
+      {"word": "speak", "meaning": "[동] 1. 말하다 2. (특정 언어를) 할 줄 알다"},
+      {"word": "hear", "meaning": "[동] 듣다, 들리다"},
+      {"word": "feel", "meaning": "[동] ~하게 느끼다, ~한 느낌이 들다"},
+      {"word": "smell", "meaning": "[동] 1. ~한 냄새가 나다 2. 냄새를 맡다"},
+      {"word": "taste", "meaning": "[동] 1. 맛보다 2. ~한 맛이 나다 [명] 맛"},
+      {"word": "touch", "meaning": "[동] (손 등으로) 만지다, 건드리다"},
+      {"word": "move", "meaning": "[동] 1. 움직이다 2. 이사하다"},
+      {"word": "sit", "meaning": "[동] 앉다"},
+      {"word": "stand", "meaning": "[동] 서다, 서 있다"},
+      {"word": "walk", "meaning": "[동] 1. 걷다 2. 산책시키다 [명] 걷기, 산책"},
+      {"word": "use", "meaning": "[동] 쓰다, 사용하다 [명] 사용"},
+      {"word": "give", "meaning": "[동] 주다"},
+      {"word": "find", "meaning": "[동] 찾다, 발견하다"},
+      {"word": "rest", "meaning": "[동] 쉬다 [명] 휴식, 안정"},
+      {"word": "get up", "meaning": "일어나다"},
+      {"word": "go to bed", "meaning": "자다, 잠자리에 들다"},
+    ]
+  },
+  "day07": {
+    "title": "DAY 07 행동, 동작 Ⅱ",
+    "words": [
+      {"word": "slow", "meaning": "[형] 느린, 천천히 움직이는"},
+      {"word": "fast", "meaning": "[형] 빠른 [부] 빠르게, 빨리"},
+      {"word": "run", "meaning": "[동] 달리다"},
+      {"word": "play", "meaning": "[동] 1. 놀다 2. 경기를 하다 3. (악기를) 연주하다"},
+      {"word": "read", "meaning": "[동] 읽다, 읽어 주다"},
+      {"word": "enter", "meaning": "[동] 들어가다"},
+      {"word": "leave", "meaning": "[동] 떠나다, 출발하다"},
+      {"word": "bring", "meaning": "[동] 가져오다, 데려오다"},
+      {"word": "cut", "meaning": "[동] 자르다, 베다"},
+      {"word": "put", "meaning": "[동] 놓다, 두다"},
+      {"word": "act", "meaning": "[동] 행동하다"},
+      {"word": "break", "meaning": "[동] 깨다, 부수다, 부서지다"},
+      {"word": "carry", "meaning": "[동] 1. 나르다, 운반하다 2. 가지고 다니다"},
+      {"word": "hold", "meaning": "[동] 잡다, 들다"},
+      {"word": "drop", "meaning": "[동] 떨어지다, 떨어뜨리다"},
+      {"word": "pass", "meaning": "[동] 지나가다, 통과하다"},
+      {"word": "send", "meaning": "[동] 보내다, 발송하다"},
+      {"word": "turn", "meaning": "[동] 돌다, 돌리다 [명] 차례"},
+      {"word": "throw", "meaning": "[동] 던지다"},
+      {"word": "hurry up", "meaning": "서두르다"},
+    ]
+  },
+  "day08": {
+    "title": "DAY 08 사고, 생각",
+    "words": [
+      {"word": "want", "meaning": "[동] 원하다"},
+      {"word": "need", "meaning": "[동] 필요하다 [명] 필요, 필요성"},
+      {"word": "know", "meaning": "[동] 알다, 알고 있다"},
+      {"word": "think", "meaning": "[동] 생각하다"},
+      {"word": "dream", "meaning": "[명] 꿈 [동] 꿈꾸다"},
+      {"word": "hope", "meaning": "[동] 바라다, 희망하다 [명] 희망, 기대"},
+      {"word": "wish", "meaning": "[명] 소원 [동] 바라다"},
+      {"word": "sure", "meaning": "[형] 확신하는, 확실히 아는"},
+      {"word": "idea", "meaning": "[명] 생각, 아이디어"},
+      {"word": "mind", "meaning": "[명] 마음, 정신"},
+      {"word": "care", "meaning": "[명] 1. 주의, 조심 2. 돌봄, 보살핌 [동] 마음을 쓰다"},
+      {"word": "decide", "meaning": "[동] 결정하다, 결심하다"},
+      {"word": "understand", "meaning": "[동] 이해하다, 알아듣다"},
+      {"word": "believe", "meaning": "[동] 믿다"},
+      {"word": "trust", "meaning": "[동] 믿다, 신뢰하다"},
+      {"word": "guess", "meaning": "[동] 알아맞히다, 추측하다 [명] 추측, 짐작"},
+      {"word": "forget", "meaning": "[동] 잊다, 잊어버리다"},
+      {"word": "remember", "meaning": "[동] 기억하다"},
+      {"word": "opinion", "meaning": "[명] 의견, 생각"},
+      {"word": "keep a diary", "meaning": "일기를 쓰다"},
+    ]
+  },
+  "day09": {
+    "title": "DAY 09 의사소통",
+    "words": [
+      {"word": "meet", "meaning": "[동] 만나다"},
+      {"word": "say", "meaning": "[동] 1. 말하다 2. ~라고 쓰여 있다"},
+      {"word": "tell", "meaning": "[동] 말하다"},
+      {"word": "talk", "meaning": "[동] 말하다, 이야기하다"},
+      {"word": "show", "meaning": "[동] 보여주다, 나타내다 [명] 1. 쇼, 공연물 2. 프로그램"},
+      {"word": "listen", "meaning": "[동] 듣다, 귀 기울이다 (to)"},
+      {"word": "agree", "meaning": "[동] 동의하다"},
+      {"word": "greet", "meaning": "[동] 환영하다, 맞이하다"},
+      {"word": "call", "meaning": "[동] 1. ~라고 부르다 2. 전화하다"},
+      {"word": "letter", "meaning": "[명] 1. 편지 2. 글자, 문자"},
+      {"word": "mail", "meaning": "[명] 1. 우편(물) 2. (컴퓨터) 메일 (= email)"},
+      {"word": "news", "meaning": "[명] 1. 소식 2. (TV, 라디오 등의) 뉴스"},
+      {"word": "ask", "meaning": "[동] 묻다, 질문하다"},
+      {"word": "answer", "meaning": "[명] 답, 대답 [동] 대답하다"},
+      {"word": "lie", "meaning": "[동] 거짓말하다 [명] 거짓말"},
+      {"word": "thank", "meaning": "[동] 감사하다, 고마워하다"},
+      {"word": "mean", "meaning": "[동] 의미하다, ~을 뜻하다"},
+      {"word": "shout", "meaning": "[동] 외치다, 소리치다"},
+      {"word": "joke", "meaning": "[명] 농담, 장난 [동] 농담하다"},
+      {"word": "say hello (to)", "meaning": "(~에게) 안부를 전하다, 인사하다"},
+    ]
+  },
+  "day10": {
+    "title": "DAY 10 의미를 더해주는 어휘",
+    "words": [
+      {"word": "really", "meaning": "[부] 정말로, 아주"},
+      {"word": "so", "meaning": "[부] 1. 정말, 너무나 2. 그렇게 [접] 그래서"},
+      {"word": "also", "meaning": "[부] 또한, ~도"},
+      {"word": "about", "meaning": "[전] ~에 대해 [부] 약, 대략"},
+      {"word": "again", "meaning": "[부] 다시, 한 번 더"},
+      {"word": "then", "meaning": "[부] 1. 그때 2. 그다음에, 그러고 나서 3. 그러면"},
+      {"word": "later", "meaning": "[부] 나중에, 후에"},
+      {"word": "just", "meaning": "[부] 그저, 단지"},
+      {"word": "true", "meaning": "[형] 1. 사실의, 진짜의 2. 진정한"},
+      {"word": "fact", "meaning": "[명] 사실"},
+      {"word": "example", "meaning": "[명] 예, 예시, 보기"},
+      {"word": "loud", "meaning": "[형] (소리가) 큰, 시끄러운 (↔ quiet 조용한)"},
+      {"word": "careful", "meaning": "[형] 조심하는, 주의 깊은"},
+      {"word": "maybe", "meaning": "[부] 아마도, 어쩌면"},
+      {"word": "possible", "meaning": "[형] 가능한 (↔ impossible 불가능한)"},
+      {"word": "easily", "meaning": "[부] 쉽게, 수월하게"},
+      {"word": "suddenly", "meaning": "[부] 갑자기"},
+      {"word": "actually", "meaning": "[부] 1. 실제로 2. 실은, 사실은 (= in fact)"},
+      {"word": "especially", "meaning": "[부] 1. 특히 2. 특별히"},
+      {"word": "each other", "meaning": "[대] 서로"},
+    ]
+  },
+  "day11": {
+    "title": "DAY 11 옷",
+    "words": [
+      {"word": "wear", "meaning": "[동] 입다, 쓰다, 착용하다"},
+      {"word": "shirt", "meaning": "[명] 셔츠"},
+      {"word": "jacket", "meaning": "[명] 재킷, 상의"},
+      {"word": "skirt", "meaning": "[명] 치마"},
+      {"word": "dress", "meaning": "[명] 드레스, 원피스"},
+      {"word": "shoes", "meaning": "[명] 신발"},
+      {"word": "socks", "meaning": "[명] 양말"},
+      {"word": "pants", "meaning": "[명] 바지"},
+      {"word": "jeans", "meaning": "[명] 청바지, 데님 바지"},
+      {"word": "shorts", "meaning": "[명] 반바지"},
+      {"word": "clothes", "meaning": "[명] 옷, 의복"},
+      {"word": "uniform", "meaning": "[명] 교복, 제복, 유니폼"},
+      {"word": "ring", "meaning": "[명] 반지, 고리 [동] (전화가) 울리다"},
+      {"word": "cap", "meaning": "[명] 모자"},
+      {"word": "tie", "meaning": "[명] 넥타이 [동] 묶다, 매달다"},
+      {"word": "gloves", "meaning": "[명] 장갑"},
+      {"word": "umbrella", "meaning": "[명] 우산"},
+      {"word": "pocket", "meaning": "[명] 주머니"},
+      {"word": "button", "meaning": "[명] 단추, 버튼 [동] 단추를 잠그다"},
+      {"word": "put on", "meaning": "1. 입다, 착용하다 2. 바르다"},
+    ]
+  },
+  "day12": {
+    "title": "DAY 12 음식",
+    "words": [
+      {"word": "bread", "meaning": "[명] 빵"},
+      {"word": "meat", "meaning": "[명] 고기"},
+      {"word": "fruit", "meaning": "[명] 과일"},
+      {"word": "vegetable", "meaning": "[명] 채소"},
+      {"word": "rice", "meaning": "[명] 쌀, 밥"},
+      {"word": "soup", "meaning": "[명] 수프, 국"},
+      {"word": "salt", "meaning": "[명] 소금"},
+      {"word": "sugar", "meaning": "[명] 설탕"},
+      {"word": "sweet", "meaning": "[형] 달콤한 [명] 단것"},
+      {"word": "spicy", "meaning": "[형] 매운, 양념 맛이 강한"},
+      {"word": "delicious", "meaning": "[형] 맛있는 (= tasty)"},
+      {"word": "breakfast", "meaning": "[명] 아침 식사"},
+      {"word": "drink", "meaning": "[동] 마시다 [명] 음료(수)"},
+      {"word": "snack", "meaning": "[명] 간식, 간단한 식사"},
+      {"word": "dessert", "meaning": "[명] 후식, 디저트"},
+      {"word": "cream", "meaning": "[명] 1. (우유로 만든) 크림 2. (화장용) 크림"},
+      {"word": "chocolate", "meaning": "[명] 초콜릿"},
+      {"word": "sandwich", "meaning": "[명] 샌드위치"},
+      {"word": "hamburger", "meaning": "[명] 햄버거"},
+      {"word": "spaghetti", "meaning": "[명] 스파게티"},
+    ]
+  },
+  "day13": {
+    "title": "DAY 13 집",
+    "words": [
+      {"word": "live", "meaning": "[동] 살다"},
+      {"word": "home", "meaning": "[명] 1. 집, 가정 2. 고향 (= hometown) [부] 집으로, 집에"},
+      {"word": "house", "meaning": "[명] 집, 주택"},
+      {"word": "key", "meaning": "[명] 열쇠, 키"},
+      {"word": "lock", "meaning": "[동] 잠그다 [명] 자물쇠"},
+      {"word": "bedroom", "meaning": "[명] 침실"},
+      {"word": "kitchen", "meaning": "[명] 부엌, 주방"},
+      {"word": "living room", "meaning": "[명] 거실"},
+      {"word": "bathroom", "meaning": "[명] 화장실"},
+      {"word": "restroom", "meaning": "[명] 화장실"},
+      {"word": "bath", "meaning": "[명] 목욕"},
+      {"word": "wall", "meaning": "[명] 벽, 담"},
+      {"word": "window", "meaning": "[명] 창문"},
+      {"word": "floor", "meaning": "[명] 1. 바닥 2. 층"},
+      {"word": "hall", "meaning": "[명] 1. 복도 2. 홀 3. (건물 입구 안쪽의) 현관"},
+      {"word": "stair", "meaning": "[명] (-s) 계단"},
+      {"word": "roof", "meaning": "[명] 지붕"},
+      {"word": "garden", "meaning": "[명] 정원"},
+      {"word": "address", "meaning": "[명] 주소"},
+      {"word": "take a shower", "meaning": "샤워하다"},
+    ]
+  },
+  "day14": {
+    "title": "DAY 14 집 안의 물건",
+    "words": [
+      {"word": "pan", "meaning": "[명] (손잡이가 달린 얕은) 팬"},
+      {"word": "pot", "meaning": "[명] 냄비, 솥, 항아리"},
+      {"word": "oven", "meaning": "[명] 오븐"},
+      {"word": "knife", "meaning": "[명] 칼"},
+      {"word": "fork", "meaning": "[명] 포크"},
+      {"word": "spoon", "meaning": "[명] 숟가락, 스푼"},
+      {"word": "dish", "meaning": "[명] 1. 접시 (= plate) 2. (접시에 담은) 요리"},
+      {"word": "bowl", "meaning": "[명] (우묵한) 그릇, (요리용의) 볼"},
+      {"word": "bottle", "meaning": "[명] 병"},
+      {"word": "glass", "meaning": "[명] 1. 유리 2. 유리잔"},
+      {"word": "case", "meaning": "[명] 상자, 용기, 케이스"},
+      {"word": "basket", "meaning": "[명] 바구니"},
+      {"word": "brush", "meaning": "[명] 붓, 솔 [동] 닦다, 솔질하다"},
+      {"word": "towel", "meaning": "[명] 수건, 타월"},
+      {"word": "mirror", "meaning": "[명] 거울"},
+      {"word": "lamp", "meaning": "[명] 전등, 램프"},
+      {"word": "fan", "meaning": "[명] 1. 선풍기, 부채, 환풍기 2. 팬"},
+      {"word": "candle", "meaning": "[명] 초, 양초"},
+      {"word": "frame", "meaning": "[명] 1. 틀, 액자 2. 뼈대"},
+      {"word": "set the table", "meaning": "식탁을 차리다"},
+    ]
+  },
+  "day15": {
+    "title": "DAY 15 집안일",
+    "words": [
+      {"word": "add", "meaning": "[동] 더하다, 추가하다"},
+      {"word": "mix", "meaning": "[동] 섞다, 혼합하다 [명] 섞인 것, 혼합 가루"},
+      {"word": "cook", "meaning": "[동] 요리하다 [명] 요리사"},
+      {"word": "bake", "meaning": "[동] (빵 등을) 굽다"},
+      {"word": "boil", "meaning": "[동] 끓다, 끓이다"},
+      {"word": "fry", "meaning": "[동] 튀기다, (기름에) 굽다, 부치다"},
+      {"word": "recipe", "meaning": "[명] 조리법"},
+      {"word": "clean", "meaning": "[형] 깨끗한 [동] 청소하다"},
+      {"word": "water", "meaning": "[명] 물 [동] ~에 물을 주다"},
+      {"word": "wash", "meaning": "[동] 씻다, 세탁하다"},
+      {"word": "fold", "meaning": "[동] 접다, 포개다"},
+      {"word": "set", "meaning": "[동] 1. ~을 두다, 놓다 2. (기계 등을) 맞추다 [명] 한 벌, 세트"},
+      {"word": "dust", "meaning": "[명] 먼지 [동] 먼지를 털다"},
+      {"word": "neat", "meaning": "[형] 정돈된, 단정한"},
+      {"word": "fix", "meaning": "[동] 1. ~을 수리하다, 고치다 2. 고정시키다"},
+      {"word": "trash", "meaning": "[명] 쓰레기"},
+      {"word": "housework", "meaning": "[명] 집안일"},
+      {"word": "throw away", "meaning": "(더 이상 필요 없는 것을) 버리다"},
+      {"word": "do the dishes", "meaning": "설거지를 하다"},
+      {"word": "make the bed", "meaning": "잠자리를 정돈하다, 이불을 개다"},
+    ]
+  },
+  "day16": {
+    "title": "DAY 16 동네, 장소",
+    "words": [
+      {"word": "place", "meaning": "[명] 장소, 곳"},
+      {"word": "park", "meaning": "[명] 공원 [동] 주차하다"},
+      {"word": "bank", "meaning": "[명] 은행"},
+      {"word": "bakery", "meaning": "[명] 빵집, 제과점"},
+      {"word": "library", "meaning": "[명] 도서관"},
+      {"word": "market", "meaning": "[명] 시장"},
+      {"word": "store", "meaning": "[명] 상점, 가게"},
+      {"word": "bookstore", "meaning": "[명] 서점"},
+      {"word": "restaurant", "meaning": "[명] 식당, 레스토랑"},
+      {"word": "theater", "meaning": "[명] 영화관, 극장"},
+      {"word": "city", "meaning": "[명] 도시, 시"},
+      {"word": "village", "meaning": "[명] 마을"},
+      {"word": "building", "meaning": "[명] 건물"},
+      {"word": "street", "meaning": "[명] 거리, 길"},
+      {"word": "way", "meaning": "[명] 1. 길 2. 방법"},
+      {"word": "sign", "meaning": "[명] 1. 표지(판), 간판 2. 징조"},
+      {"word": "corner", "meaning": "[명] 1. 모퉁이, 모서리 2. (방, 상자의) 구석"},
+      {"word": "block", "meaning": "[명] 구역, 블록"},
+      {"word": "bridge", "meaning": "[명] 다리"},
+      {"word": "look for", "meaning": "~을 찾다"},
+    ]
+  },
+  "day17": {
+    "title": "DAY 17 교통수단",
+    "words": [
+      {"word": "bicycle", "meaning": "[명] 자전거 (= bike)"},
+      {"word": "boat", "meaning": "[명] 배"},
+      {"word": "ship", "meaning": "[명] (큰) 배, 선박 [동] 실어 나르다, 수송하다"},
+      {"word": "truck", "meaning": "[명] 트럭"},
+      {"word": "road", "meaning": "[명] 도로"},
+      {"word": "drive", "meaning": "[동] 운전하다"},
+      {"word": "ride", "meaning": "[동] (탈 것을) 타다 [명] 타기"},
+      {"word": "train", "meaning": "[명] 기차, 열차"},
+      {"word": "subway", "meaning": "[명] 지하철"},
+      {"word": "station", "meaning": "[명] 역, 정거장"},
+      {"word": "airplane", "meaning": "[명] 비행기"},
+      {"word": "fly", "meaning": "[동] 1. (새, 곤충이) 날다 2. (비행기로) 가다"},
+      {"word": "stop", "meaning": "[동] 멈추다, 그만하다 [명] 1. 멈춤, 중단 2. 정류장"},
+      {"word": "wait", "meaning": "[동] 기다리다"},
+      {"word": "miss", "meaning": "[동] 1. 놓치다 2. 그리워하다"},
+      {"word": "cross", "meaning": "[동] (가로질러) 건너다, 횡단하다"},
+      {"word": "motorcycle", "meaning": "[명] 오토바이"},
+      {"word": "helicopter", "meaning": "[명] 헬리콥터"},
+      {"word": "on foot", "meaning": "걸어서, 도보로"},
+      {"word": "by bus", "meaning": "버스로, 버스를 타고"},
+    ]
+  },
+  "day18": {
+    "title": "DAY 18 모양, 상태 Ⅰ",
+    "words": [
+      {"word": "short", "meaning": "[형] 1. 짧은 2. 키가 작은"},
+      {"word": "long", "meaning": "[형] 1. 긴, 오랜 2. 길이가 ~인"},
+      {"word": "wide", "meaning": "[형] 1. 넓은 2. 폭이 ~인"},
+      {"word": "hard", "meaning": "[형] 1. 힘든, 어려운 2. 단단한, 굳은 [부] 열심히"},
+      {"word": "soft", "meaning": "[형] 부드러운, 푹신한"},
+      {"word": "light", "meaning": "[명] 빛, 등 [형] 가벼운"},
+      {"word": "heavy", "meaning": "[형] 무거운"},
+      {"word": "medium", "meaning": "[형] 중간의"},
+      {"word": "large", "meaning": "[형] 큰 (= big) (↔ small 작은)"},
+      {"word": "huge", "meaning": "[형] 큰, 거대한"},
+      {"word": "thick", "meaning": "[형] 두꺼운, 두툼한"},
+      {"word": "thin", "meaning": "[형] 1. 얇은 2. 마른"},
+      {"word": "thing", "meaning": "[명] 물건, 사물, 것"},
+      {"word": "hole", "meaning": "[명] 구멍, 구덩이"},
+      {"word": "line", "meaning": "[명] 선, 줄"},
+      {"word": "shape", "meaning": "[명] 모양, 형태"},
+      {"word": "heart", "meaning": "[명] 1. 하트 2. 마음 3. 심장"},
+      {"word": "circle", "meaning": "[명] 원, 동그라미 [동] 동그라미를 그리다"},
+      {"word": "round", "meaning": "[형] 둥근, 원형의"},
+      {"word": "(a) part of", "meaning": "~의 일부[부분]"},
+    ]
+  },
+  "day19": {
+    "title": "DAY 19 모양, 상태 Ⅱ",
+    "words": [
+      {"word": "open", "meaning": "[형] 열린 [동] 열다"},
+      {"word": "close", "meaning": "[형] 가까운 [부] 가까이 [동] 닫다"},
+      {"word": "same", "meaning": "[형] 같은, 동일한"},
+      {"word": "different", "meaning": "[형] 1. 다른 2. 여러 가지의"},
+      {"word": "bright", "meaning": "[형] 밝은 [부] 밝게, 환히 (= brightly)"},
+      {"word": "dark", "meaning": "[형] 1. 어두운 2. 진한 [명] 어둠, 암흑"},
+      {"word": "fine", "meaning": "[형] 1. 멋진, 좋은 2. (사람이) 건강한, 기분 좋은"},
+      {"word": "wet", "meaning": "[형] 젖은, 축축한"},
+      {"word": "dry", "meaning": "[형] 마른, 건조한"},
+      {"word": "deep", "meaning": "[형] 1. 깊은 2. 깊이가 ~인 [부] 깊이, 깊은 곳으로"},
+      {"word": "dirty", "meaning": "[형] 더러운, 지저분한"},
+      {"word": "new", "meaning": "[형] 새로운"},
+      {"word": "fresh", "meaning": "[형] 1. 신선한, 상쾌한 2. 새로운, 참신한"},
+      {"word": "real", "meaning": "[형] 진짜의, 실제의"},
+      {"word": "safe", "meaning": "[형] 안전한 [명] 금고"},
+      {"word": "dangerous", "meaning": "[형] 위험한"},
+      {"word": "type", "meaning": "[명] 유형, 종류 (= kind)"},
+      {"word": "color", "meaning": "[명] 색깔, 빛깔"},
+      {"word": "colorful", "meaning": "[형] 형형색색의, 다채로운"},
+      {"word": "kind of", "meaning": "~의 종류, 유형"},
+    ]
+  },
+  "day20": {
+    "title": "DAY 20 수, 양, 빈도",
+    "words": [
+      {"word": "number", "meaning": "[명] 1. 수, 숫자 2. 번호"},
+      {"word": "hundred", "meaning": "[명] 백, 100"},
+      {"word": "all", "meaning": "[형] 모든, 전체의 [대] 모든 것"},
+      {"word": "every", "meaning": "[형] 1. 모든 2. 매~ , ~마다"},
+      {"word": "some", "meaning": "[형] 약간, 조금의"},
+      {"word": "only", "meaning": "[형] 유일한 [부] 오직, 단지"},
+      {"word": "another", "meaning": "[형] 1. 또 하나의 2. 다른"},
+      {"word": "enough", "meaning": "[형] 충분한 [부] 충분히"},
+      {"word": "both", "meaning": "[형] 양쪽의, 둘 다의 [대] 양쪽 둘 다"},
+      {"word": "piece", "meaning": "[명] 조각, 일부분"},
+      {"word": "always", "meaning": "[부] 언제나, 항상"},
+      {"word": "usually", "meaning": "[부] 보통, 대개"},
+      {"word": "often", "meaning": "[부] 흔히, 자주"},
+      {"word": "sometimes", "meaning": "[부] 가끔, 때때로"},
+      {"word": "never", "meaning": "[부] 결코 ~않다"},
+      {"word": "empty", "meaning": "[형] 비어 있는, 빈"},
+      {"word": "nothing", "meaning": "[대] 아무것도 ~ 아니다[없다]"},
+      {"word": "a lot of", "meaning": "많은, 다수의 (= many, much)"},
+      {"word": "a little", "meaning": "(양이) 약간의, 조금의"},
+      {"word": "a few", "meaning": "(수가) 약간의, 몇몇의"},
+    ]
+  },
+  "day21": {
+    "title": "DAY 21 시간, 순서",
+    "words": [
+      {"word": "date", "meaning": "[명] 날짜"},
+      {"word": "evening", "meaning": "[명] 저녁, 밤"},
+      {"word": "noon", "meaning": "[명] 정오, 낮 12시"},
+      {"word": "weekend", "meaning": "[명] 주말"},
+      {"word": "month", "meaning": "[명] 월, 달"},
+      {"word": "hour", "meaning": "[명] 시간"},
+      {"word": "minute", "meaning": "[명] 1. (시간 단위) 분 2. 잠깐"},
+      {"word": "first", "meaning": "[형] 첫 번째의 [부] 우선, 맨 먼저 (↔ last 마지막의; 마지막으로)"},
+      {"word": "second", "meaning": "[형] 두 번째의 [명] 1. (시간 단위) 초 2. 잠시, 순간"},
+      {"word": "after", "meaning": "[전] ~ 이후에"},
+      {"word": "before", "meaning": "[전] ~ 전에"},
+      {"word": "early", "meaning": "[부] 일찍 (↔ late 늦은; 늦게)"},
+      {"word": "next", "meaning": "[형] 다음의"},
+      {"word": "end", "meaning": "[명] 끝 [동] 끝나다"},
+      {"word": "finally", "meaning": "[부] 드디어, 마침내"},
+      {"word": "soon", "meaning": "[부] 곧, 머지않아"},
+      {"word": "still", "meaning": "[부] 아직도, 여전히"},
+      {"word": "forever", "meaning": "[부] 영원히"},
+      {"word": "already", "meaning": "[부] 이미, 벌써"},
+      {"word": "all day (long)", "meaning": "하루 종일, 온종일"},
+    ]
+  },
+  "day22": {
+    "title": "DAY 22 방향, 위치",
+    "words": [
+      {"word": "right", "meaning": "[형] 1. 오른쪽의 2. 옳은, 맞는 [부] 오른쪽으로 (↔ left 왼쪽의; 왼쪽으로) [명] 권리, 권한"},
+      {"word": "high", "meaning": "[형] 높은 [부] 높이"},
+      {"word": "low", "meaning": "[형] 낮은 [부] 낮게"},
+      {"word": "north", "meaning": "[명] 북쪽 [형] 북부의"},
+      {"word": "under", "meaning": "[전] ~의 아래에"},
+      {"word": "behind", "meaning": "[전] ~의 뒤에"},
+      {"word": "between", "meaning": "[전] ~사이에"},
+      {"word": "along", "meaning": "[전] ~을 따라"},
+      {"word": "far", "meaning": "[부] 멀리, (~ 만큼) 떨어져"},
+      {"word": "near", "meaning": "[형] 가까운 (= close) [부] 가까이 [전] ~에서 가까이"},
+      {"word": "around", "meaning": "[부] 1. 돌아서 2. 여기저기에 [전] ~ 주위에"},
+      {"word": "top", "meaning": "[명] 맨 위(부분), 정상, 꼭대기 [형] 꼭대기의, 맨 위의, 최고의"},
+      {"word": "middle", "meaning": "[명] 중앙, 가운데 [형] 중앙의, 가운데의"},
+      {"word": "center", "meaning": "[명] 1. 중심, 중앙, 가운데 2. 센터 특정 활동을 위한 건물"},
+      {"word": "side", "meaning": "[명] 1. 쪽, 면 2. 옆면, 측면"},
+      {"word": "inside", "meaning": "[전] ~ 안에 [부] 안에서, 안으로 [명] 안쪽, 안쪽 면"},
+      {"word": "outside", "meaning": "[전] ~ 밖에 [부] 밖에서, 밖으로 [명] 바깥쪽, 외면"},
+      {"word": "next to", "meaning": "~ 옆에"},
+      {"word": "in front of", "meaning": "~의 앞에"},
+      {"word": "over there", "meaning": "저쪽에"},
+    ]
+  },
+  "day23": {
+    "title": "DAY 23 학교 일상",
+    "words": [
+      {"word": "pencil", "meaning": "[명] 연필"},
+      {"word": "paper", "meaning": "[명] 종이"},
+      {"word": "note", "meaning": "[명] 1. 메모, 쪽지 2. 기록 3. 음, 음표"},
+      {"word": "notebook", "meaning": "[명] 노트, 공책"},
+      {"word": "eraser", "meaning": "[명] 지우개"},
+      {"word": "glue", "meaning": "[명] 풀, 접착제 [동] (접착제로) 붙이다"},
+      {"word": "tape", "meaning": "[명] 테이프 [동] 테이프로 붙이다"},
+      {"word": "scissors", "meaning": "[명] 가위"},
+      {"word": "textbook", "meaning": "[명] 교과서"},
+      {"word": "backpack", "meaning": "[명] 배낭, 책가방"},
+      {"word": "rule", "meaning": "[명] 규칙, 원칙"},
+      {"word": "bell", "meaning": "[명] 종, 종소리, 벨"},
+      {"word": "board", "meaning": "[명] 게시판, -판"},
+      {"word": "locker", "meaning": "[명] 사물함, 개인 물품 보관함"},
+      {"word": "computer", "meaning": "[명] 컴퓨터"},
+      {"word": "dictionary", "meaning": "[명] 사전"},
+      {"word": "classmate", "meaning": "[명] 반 친구"},
+      {"word": "classroom", "meaning": "[명] 교실"},
+      {"word": "playground", "meaning": "[명] (학교의) 운동장, (공원의) 놀이터"},
+      {"word": "cafeteria", "meaning": "[명] 구내식당, 카페테리아"},
+    ]
+  },
+  "day24": {
+    "title": "DAY 24 수업Ⅰ",
+    "words": [
+      {"word": "class", "meaning": "[명] 1. 학급, 반 2. 수업"},
+      {"word": "begin", "meaning": "[동] 시작하다 (= start)"},
+      {"word": "teach", "meaning": "[동] 가르치다"},
+      {"word": "let", "meaning": "[동] ~하게 하다, 시키다"},
+      {"word": "introduce", "meaning": "[동] 소개하다"},
+      {"word": "lesson", "meaning": "[명] 1. 수업 2. 과 3. 교훈"},
+      {"word": "course", "meaning": "[명] 강의, 강좌"},
+      {"word": "art", "meaning": "[명] 미술, 예술"},
+      {"word": "math", "meaning": "[명] 수학 (= mathematics)"},
+      {"word": "history", "meaning": "[명] 역사"},
+      {"word": "science", "meaning": "[명] 과학"},
+      {"word": "subject", "meaning": "[명] 과목"},
+      {"word": "timetable", "meaning": "[명] 시간표"},
+      {"word": "word", "meaning": "[명] 단어, 낱말, 말"},
+      {"word": "page", "meaning": "[명] 페이지, 쪽, 면"},
+      {"word": "chapter", "meaning": "[명] (책의) 장, 챕터"},
+      {"word": "blank", "meaning": "[명] 빈칸"},
+      {"word": "difficult", "meaning": "[명] 어려운, 힘든"},
+      {"word": "important", "meaning": "[형] 중요한"},
+      {"word": "be over", "meaning": "끝나다"},
+    ]
+  },
+  "day25": {
+    "title": "DAY 25 수업Ⅱ",
+    "words": [
+      {"word": "study", "meaning": "[동] 공부하다 [명] 공부, 학습"},
+      {"word": "work", "meaning": "[동] 1. 일하다 2. 노력하다 [명] 일, 작업"},
+      {"word": "learn", "meaning": "[동] 배우다, 학습하다"},
+      {"word": "try", "meaning": "[동] 1. 노력하다, 애쓰다 2. 시도하다"},
+      {"word": "write", "meaning": "[동] 쓰다, 작성하다"},
+      {"word": "finish", "meaning": "[동] 끝나다, 마치다"},
+      {"word": "solve", "meaning": "[동] 해결하다, 풀다"},
+      {"word": "follow", "meaning": "[동] 1. 따라오다, 따라가다 2. 따르다"},
+      {"word": "raise", "meaning": "[동] 올리다, 들어 올리다"},
+      {"word": "count", "meaning": "[동] (수를) 세다"},
+      {"word": "homework", "meaning": "[명] 숙제"},
+      {"word": "leader", "meaning": "[명] 지도자, 대표"},
+      {"word": "report", "meaning": "[명] 보고서, 리포트 [동] 1. 알리다, 발표하다 2. (신문·방송에서) 보도하다"},
+      {"word": "wrong", "meaning": "[형] 1. 틀린, 잘못된 2. 이상이 있는"},
+      {"word": "perfect", "meaning": "[형] 완벽한, 꼭 맞는"},
+      {"word": "excellent", "meaning": "[형] 훌륭한"},
+      {"word": "question", "meaning": "[명] 질문, 문제 [동] (특히 공식적으로) 질문하다"},
+      {"word": "take a break", "meaning": "휴식을 취하다"},
+      {"word": "be good at", "meaning": "~을 잘하다, ~에 능숙하다"},
+      {"word": "do one’s best", "meaning": "최선을 다하다"},
+    ]
+  },
+  "day26": {
+    "title": "DAY 26 학교 활동",
+    "words": [
+      {"word": "join", "meaning": "[동] 가입하다, 함께 하다"},
+      {"word": "club", "meaning": "[명] 동아리, 클럽"},
+      {"word": "member", "meaning": "[명] 회원, 멤버"},
+      {"word": "group", "meaning": "[명] 모둠, 무리, 그룹"},
+      {"word": "together", "meaning": "[부] 함께, 같이"},
+      {"word": "share", "meaning": "[동] 함께 나누다, 공유하다"},
+      {"word": "borrow", "meaning": "[동] 빌리다"},
+      {"word": "return", "meaning": "[동] 1. 돌아오다 2. 반납하다"},
+      {"word": "prize", "meaning": "[명] 상"},
+      {"word": "contest", "meaning": "[명] 시합, 대회"},
+      {"word": "chance", "meaning": "[명] 1. 기회 2. 가능성"},
+      {"word": "poster", "meaning": "[명] 포스터, 벽보"},
+      {"word": "practice", "meaning": "[동] 연습하다 [명] 연습"},
+      {"word": "project", "meaning": "[명] 프로젝트, 과제"},
+      {"word": "change", "meaning": "[동] 바꾸다, 변하다 [명] 변화"},
+      {"word": "activity", "meaning": "[명] 활동"},
+      {"word": "speech", "meaning": "[명] 1. 연설 2. 말, 말투"},
+      {"word": "volunteer", "meaning": "[명] 자원봉사자 [동] 자원하다"},
+      {"word": "field trip", "meaning": "현장학습, 견학"},
+      {"word": "after school", "meaning": "방과 후에"},
+    ]
+  },
+  "day27": {
+    "title": "DAY 27 학교 고민",
+    "words": [
+      {"word": "lose", "meaning": "[동] 1. 잃어버리다 2. 지다"},
+      {"word": "choose", "meaning": "[동] 선택하다, 고르다"},
+      {"word": "future", "meaning": "[명] 미래 [형] 미래의"},
+      {"word": "problem", "meaning": "[명] 문제"},
+      {"word": "advice", "meaning": "[명] 조언, 충고"},
+      {"word": "online", "meaning": "[형] 온라인의 [부] 온라인으로"},
+      {"word": "grade", "meaning": "[명] 1. 학년 2. 성적, 점수"},
+      {"word": "quiz", "meaning": "[명] 1. 퀴즈 2. 쪽지 시험"},
+      {"word": "test", "meaning": "[명] 시험, 검사 [동] 시험하다, 실험하다"},
+      {"word": "exam", "meaning": "[명] 시험 (= examination)"},
+      {"word": "mistake", "meaning": "[명] 실수, 잘못"},
+      {"word": "trouble", "meaning": "[명] 문제, 어려움"},
+      {"word": "secret", "meaning": "[명] 비밀 [형] 비밀의"},
+      {"word": "fight", "meaning": "[동] 싸우다 [명] 싸움"},
+      {"word": "trick", "meaning": "[명] 1. 속임수 2. 장난, 농담 3. 묘기, 마술"},
+      {"word": "friendship", "meaning": "[명] 우정"},
+      {"word": "peer", "meaning": "[명] (나이, 신분이 같은) 또래, 동료"},
+      {"word": "nickname", "meaning": "[명] 별명"},
+      {"word": "be late for", "meaning": "~에 늦다, 지각하다"},
+      {"word": "give up (on)", "meaning": "(~을) 포기하다, 그만두다"},
+    ]
+  },
+  "day28": {
+    "title": "DAY 28 특별한 날",
+    "words": [
+      {"word": "event", "meaning": "[명] 행사, 사건"},
+      {"word": "birthday", "meaning": "[명] 생일"},
+      {"word": "gift", "meaning": "[명] 선물"},
+      {"word": "present", "meaning": "[명] 선물"},
+      {"word": "invite", "meaning": "[동] 초대하다"},
+      {"word": "album", "meaning": "[명] 1. 앨범, 사진첩 2. (음악) 앨범"},
+      {"word": "balloon", "meaning": "[명] 풍선"},
+      {"word": "holiday", "meaning": "[명] 1. 휴일, 공휴일 2. 휴가 (= vacation)"},
+      {"word": "special", "meaning": "[형] 특별한"},
+      {"word": "hug", "meaning": "[동] 껴안다, 포옹하다 [명] 포옹"},
+      {"word": "welcome", "meaning": "[동] 환영하다, 기쁘게 맞이하다"},
+      {"word": "marry", "meaning": "[동] 결혼하다"},
+      {"word": "wedding", "meaning": "[명] 결혼(식)"},
+      {"word": "picnic", "meaning": "[명] 소풍"},
+      {"word": "festival", "meaning": "[명] 축제"},
+      {"word": "firework", "meaning": "[명] (-s) 불꽃놀이"},
+      {"word": "photograph", "meaning": "[명] 사진 (= photo, picture)"},
+      {"word": "memory", "meaning": "[명] 1. 기억, 추억 2. 기억력"},
+      {"word": "come up", "meaning": "1. 생기다, 발생하다 2. 다가오다"},
+      {"word": "throw a party", "meaning": "파티를 열다"},
+    ]
+  },
+  "day29": {
+    "title": "DAY 29 취미, 관심사",
+    "words": [
+      {"word": "hobby", "meaning": "[명] 취미"},
+      {"word": "spend", "meaning": "[동] 1. (돈을) 쓰다 2. (시간을) 보내다"},
+      {"word": "enjoy", "meaning": "[동] 즐기다"},
+      {"word": "favorite", "meaning": "[형] 가장 좋아하는"},
+      {"word": "sing", "meaning": "[동] 1. 노래하다 2. (새가) 지저귀다, 울다"},
+      {"word": "draw", "meaning": "[동] (연필, 펜 등으로) 그리다"},
+      {"word": "collect", "meaning": "[동] 모으다, 수집하다"},
+      {"word": "climb", "meaning": "[동] 오르다, 올라가다"},
+      {"word": "game", "meaning": "[명] 1. 게임, 놀이 2. 경기, 시합"},
+      {"word": "chess", "meaning": "[명] 체스"},
+      {"word": "comic", "meaning": "[형] 웃기는, 희극의 [명] (-s) 만화책 (= comic book)"},
+      {"word": "cartoon", "meaning": "[명] 만화, 만화 영화"},
+      {"word": "video", "meaning": "[명] 비디오, 영상"},
+      {"word": "camping", "meaning": "[명] 캠핑, 야영"},
+      {"word": "film", "meaning": "[명] 영화 (= movie)"},
+      {"word": "blog", "meaning": "[명] (인터넷의) 블로그"},
+      {"word": "fashion", "meaning": "[명] 1. 패션 2. 유행"},
+      {"word": "be interested in", "meaning": "~에 관심이 있다, 흥미가 있다"},
+      {"word": "go to the movies", "meaning": "영화 보러 가다"},
+      {"word": "take a picture (of)", "meaning": "~의 사진을 찍다"},
+    ]
+  },
+  "day30": {
+    "title": "DAY 30 쇼핑, 외식",
+    "words": [
+      {"word": "buy", "meaning": "[동] 사다, 구입하다"},
+      {"word": "sell", "meaning": "[동] 팔다, 팔리다"},
+      {"word": "money", "meaning": "[명] 돈"},
+      {"word": "cost", "meaning": "[명] 값, 비용 [동] (값, 비용이) ~이다"},
+      {"word": "price", "meaning": "[명] 가격, 값"},
+      {"word": "check", "meaning": "[동] 확인하다, 점검하다 [명] 1. 확인, 점검 2. 계산서"},
+      {"word": "pay", "meaning": "[동] 내다, 지불하다"},
+      {"word": "cheap", "meaning": "[형] 값이 싼, 저렴한"},
+      {"word": "expensive", "meaning": "[형] 비싼, 돈이 많이 드는"},
+      {"word": "size", "meaning": "[명] 크기, 사이즈"},
+      {"word": "item", "meaning": "[명] 물품, 항목"},
+      {"word": "list", "meaning": "[명] 목록, 명단"},
+      {"word": "menu", "meaning": "[명] 메뉴"},
+      {"word": "order", "meaning": "[동] 1. 명령하다 2. 주문하다 [명] 주문"},
+      {"word": "steak", "meaning": "[명] 스테이크"},
+      {"word": "seafood", "meaning": "[명] 해산물"},
+      {"word": "serve", "meaning": "[동] (음식을) 제공하다, 차려 주다"},
+      {"word": "customer", "meaning": "[명] 손님, 고객"},
+      {"word": "go shopping", "meaning": "쇼핑하러 가다"},
+      {"word": "on sale", "meaning": "1. 할인 중인 2. 판매 중인 (= for sale)"},
+    ]
+  },
+  "day31": {
+    "title": "DAY 31 여행",
+    "words": [
+      {"word": "plan", "meaning": "[명] 계획 [동] 계획하다"},
+      {"word": "travel", "meaning": "[동] 여행하다 [명] 여행"},
+      {"word": "trip", "meaning": "[명] 여행"},
+      {"word": "vacation", "meaning": "[명] 휴가, 방학"},
+      {"word": "ticket", "meaning": "[명] 표, 입장권, 승차권"},
+      {"word": "map", "meaning": "[명] 지도"},
+      {"word": "seat", "meaning": "[명] 자리, 좌석"},
+      {"word": "arrive", "meaning": "[동] 도착하다"},
+      {"word": "stay", "meaning": "[동] 머무르다"},
+      {"word": "hotel", "meaning": "[명] 호텔"},
+      {"word": "service", "meaning": "[명] 서비스"},
+      {"word": "visit", "meaning": "[동] 방문하다 [명] 방문"},
+      {"word": "pool", "meaning": "[명] 수영장"},
+      {"word": "beach", "meaning": "[명] 해변, 바닷가"},
+      {"word": "palace", "meaning": "[명] 궁전"},
+      {"word": "guide", "meaning": "[명] 1. 안내(서) 2. 안내인 [동] 안내하다, 인도하다"},
+      {"word": "pack", "meaning": "[동] (짐을) 싸다, 꾸리다"},
+      {"word": "adventure", "meaning": "[명] 모험"},
+      {"word": "scenery", "meaning": "[명] 경치, 풍경"},
+      {"word": "have fun", "meaning": "즐기다, 재미있게 보내다"},
+    ]
+  },
+  "day32": {
+    "title": "DAY 32 스포츠, 운동",
+    "words": [
+      {"word": "sport", "meaning": "[명] 스포츠, 운동"},
+      {"word": "soccer", "meaning": "[명] 축구 (= football)"},
+      {"word": "baseball", "meaning": "[명] 야구"},
+      {"word": "basketball", "meaning": "[명] 농구"},
+      {"word": "race", "meaning": "[명] 경주 [동] 경주하다"},
+      {"word": "swim", "meaning": "[동] 수영하다"},
+      {"word": "catch", "meaning": "[동] 잡다"},
+      {"word": "hit", "meaning": "[동] 1. 치다, 때리다 2. 부딪치다, ~에 맞다"},
+      {"word": "jump", "meaning": "[동] 뛰다, 점프하다"},
+      {"word": "kick", "meaning": "[동] (발로) 차다"},
+      {"word": "win", "meaning": "[동] 1. 이기다 2. (상을) 타다"},
+      {"word": "goal", "meaning": "[명] 1. 골, 득점 2. 목표"},
+      {"word": "score", "meaning": "[명] 득점, 점수 [동] 득점하다"},
+      {"word": "team", "meaning": "[명] 팀, 단체"},
+      {"word": "player", "meaning": "[명] 선수"},
+      {"word": "coach", "meaning": "[명] (스포츠 팀의) 코치"},
+      {"word": "match", "meaning": "[명] 경기"},
+      {"word": "exercise", "meaning": "[명] 운동 [동] 운동하다"},
+      {"word": "gym", "meaning": "[명] 체육관"},
+      {"word": "go v-ing", "meaning": "~하러 가다, ~하다"},
+    ]
+  },
+  "day33": {
+    "title": "DAY 33 건강, 질병",
+    "words": [
+      {"word": "sick", "meaning": "[형] 아픈, 병든"},
+      {"word": "hurt", "meaning": "[동] 1. 다치게 하다 2. 아프다"},
+      {"word": "pain", "meaning": "[명] 아픔, 통증"},
+      {"word": "healthy", "meaning": "[형] 1. 건강한 2. 건강에 좋은"},
+      {"word": "doctor", "meaning": "[명] 의사"},
+      {"word": "dentist", "meaning": "[명] 치과 의사"},
+      {"word": "nurse", "meaning": "[명] 간호사"},
+      {"word": "hospital", "meaning": "[명] 병원"},
+      {"word": "bone", "meaning": "[명] 뼈"},
+      {"word": "habit", "meaning": "[명] 버릇, 습관"},
+      {"word": "fever", "meaning": "[명] 열, 열병"},
+      {"word": "cough", "meaning": "[동] 기침하다 [명] 기침"},
+      {"word": "headache", "meaning": "[명] 두통"},
+      {"word": "toothache", "meaning": "[명] 치통, 이앓이"},
+      {"word": "stomachache", "meaning": "[명] 복통, 배앓이"},
+      {"word": "runny", "meaning": "[형] (콧물이) 흐르는"},
+      {"word": "drug", "meaning": "[명] 1. 약, 의약품 2. (불법적인) 약물"},
+      {"word": "medicine", "meaning": "[명] 약, 약물"},
+      {"word": "be good for", "meaning": "~에 좋다"},
+      {"word": "catch[have] a cold", "meaning": "감기에 걸리다"},
+    ]
+  },
+  "day34": {
+    "title": "DAY 34 미술, 문학",
+    "words": [
+      {"word": "create", "meaning": "[동] 창조하다, 창작하다"},
+      {"word": "artist", "meaning": "[명] 화가, 예술가"},
+      {"word": "artwork", "meaning": "[명] (특히 박물관의) 미술품"},
+      {"word": "paint", "meaning": "[명] 페인트 [동] 1. 페인트를 칠하다 2. (물감으로) 그리다"},
+      {"word": "sketch", "meaning": "[명] 스케치 [동] 스케치하다"},
+      {"word": "design", "meaning": "[명] 디자인 [동] 디자인하다"},
+      {"word": "museum", "meaning": "[명] 박물관, 미술관"},
+      {"word": "gallery", "meaning": "[명] 미술관, 화랑"},
+      {"word": "review", "meaning": "[명] 1. 논평, 비평 2. 복습"},
+      {"word": "culture", "meaning": "[명] 문화"},
+      {"word": "story", "meaning": "[명] 1. 이야기 2. (건물의) 층"},
+      {"word": "magic", "meaning": "[명] 마술, 마법 [형] 마술의"},
+      {"word": "fairy", "meaning": "[명] 요정"},
+      {"word": "monster", "meaning": "[명] (이야기 속) 괴물"},
+      {"word": "hero", "meaning": "[명] 1. 영웅 2. (소설, 영화 등) 남자 주인공"},
+      {"word": "novel", "meaning": "[명] 소설"},
+      {"word": "mystery", "meaning": "[명] 1. 수수께끼, 미스터리 2. 추리 소설"},
+      {"word": "title", "meaning": "[명] 제목"},
+      {"word": "poem", "meaning": "[명] (한 편의) 시"},
+      {"word": "be based on", "meaning": "~에 바탕을 두다, ~에 근거하다"},
+    ]
+  },
+  "day35": {
+    "title": "DAY 35 음악, 대중문화",
+    "words": [
+      {"word": "music", "meaning": "[명] 음악"},
+      {"word": "musical", "meaning": "[형] 음악의, 음악적인 [명] 뮤지컬"},
+      {"word": "dance", "meaning": "[동] 춤을 추다 [명] 춤, 무용"},
+      {"word": "singer", "meaning": "[명] 가수"},
+      {"word": "piano", "meaning": "[명] 피아노"},
+      {"word": "band", "meaning": "[명] (가수를 중심으로 한) 밴드"},
+      {"word": "concert", "meaning": "[명] 음악회, 콘서트"},
+      {"word": "beat", "meaning": "[동] 1. 이기다 2. 치다, 두드리다 [명] 박자, 비트"},
+      {"word": "stage", "meaning": "[명] 무대"},
+      {"word": "actor", "meaning": "[명] (남자) 배우"},
+      {"word": "actress", "meaning": "[명] (여자) 배우"},
+      {"word": "comedy", "meaning": "[명] 코미디, 희극"},
+      {"word": "drama", "meaning": "[명] 1. 드라마 2. 연극 3. 극적인 사건"},
+      {"word": "media", "meaning": "[명] 미디어, 대중 매체"},
+      {"word": "radio", "meaning": "[명] 라디오"},
+      {"word": "internet", "meaning": "[명] 인터넷"},
+      {"word": "folk", "meaning": "[형] 민속의, 전통적인"},
+      {"word": "clip", "meaning": "[명] 1. 핀, 클립 2. (영상) 클립"},
+      {"word": "program", "meaning": "[명] 프로그램"},
+      {"word": "a huge fan", "meaning": "열렬한 팬, 광팬"},
+    ]
+  },
+  "day36": {
+    "title": "DAY 36 동물",
+    "words": [
+      {"word": "animal", "meaning": "[명] 동물"},
+      {"word": "chicken", "meaning": "[명] 1. 닭 2. 닭고기"},
+      {"word": "frog", "meaning": "[명] 개구리"},
+      {"word": "giraffe", "meaning": "[명] 기린"},
+      {"word": "elephant", "meaning": "[명] 코끼리"},
+      {"word": "snake", "meaning": "[명] 뱀"},
+      {"word": "goat", "meaning": "[명] 염소"},
+      {"word": "sheep", "meaning": "[명] 양"},
+      {"word": "deer", "meaning": "[명] 사슴"},
+      {"word": "whale", "meaning": "[명] 고래"},
+      {"word": "penguin", "meaning": "[명] 펭귄"},
+      {"word": "turtle", "meaning": "[명] 거북이"},
+      {"word": "ant", "meaning": "[명] 개미"},
+      {"word": "bug", "meaning": "[명] 곤충, 벌레"},
+      {"word": "spider", "meaning": "[명] 거미"},
+      {"word": "eagle", "meaning": "[명] 독수리"},
+      {"word": "owl", "meaning": "[명] 부엉이, 올빼미"},
+      {"word": "camel", "meaning": "[명] 낙타"},
+      {"word": "donkey", "meaning": "[명] 당나귀"},
+      {"word": "zebra", "meaning": "[명] 얼룩말"},
+    ]
+  },
+  "day37": {
+    "title": "DAY 37 동식물 묘사",
+    "words": [
+      {"word": "grow", "meaning": "[동] 1. 자라다 2. 기르다, 재배하다"},
+      {"word": "life", "meaning": "[명] 생명, 삶"},
+      {"word": "die", "meaning": "[동] 죽다"},
+      {"word": "wing", "meaning": "[명] 날개"},
+      {"word": "tail", "meaning": "[명] 꼬리"},
+      {"word": "fur", "meaning": "[명] 털"},
+      {"word": "trunk", "meaning": "[명] 1. (코끼리의) 코 2. (나무) 줄기"},
+      {"word": "farm", "meaning": "[명] 농장"},
+      {"word": "nest", "meaning": "[명] 둥지"},
+      {"word": "lay", "meaning": "[동] 1. (알을) 낳다 2. 놓다, 두다"},
+      {"word": "plant", "meaning": "[명] 식물 [동] 심다"},
+      {"word": "rose", "meaning": "[명] 장미"},
+      {"word": "leaf", "meaning": "[명] (나뭇)잎"},
+      {"word": "mushroom", "meaning": "[명] 버섯"},
+      {"word": "worm", "meaning": "[명] 벌레"},
+      {"word": "pick", "meaning": "[동] 1. 고르다, 뽑다 2. 따다, 꺾다"},
+      {"word": "hunt", "meaning": "[동] 사냥하다 [명] 사냥"},
+      {"word": "wild", "meaning": "[형] 야생의 [명] 야생"},
+      {"word": "feed", "meaning": "[동] 1. 먹이다 2. 먹이를 주다"},
+      {"word": "live on", "meaning": "~을 먹고 살다"},
+    ]
+  },
+  "day38": {
+    "title": "DAY 38 자연, 자연 장소",
+    "words": [
+      {"word": "lake", "meaning": "[명] 호수"},
+      {"word": "river", "meaning": "[명] 강"},
+      {"word": "pond", "meaning": "[명] 연못"},
+      {"word": "air", "meaning": "[명] 공기"},
+      {"word": "land", "meaning": "[명] 육지, 땅"},
+      {"word": "hill", "meaning": "[명] 언덕"},
+      {"word": "mountain", "meaning": "[명] 산"},
+      {"word": "nature", "meaning": "[명] 자연"},
+      {"word": "ground", "meaning": "[명] 땅, 토양"},
+      {"word": "grass", "meaning": "[명] 풀, 잔디"},
+      {"word": "rock", "meaning": "[명] 1. 바위, 암석 2. 록 (음악)"},
+      {"word": "stone", "meaning": "[명] 돌, 돌멩이"},
+      {"word": "island", "meaning": "[명] 섬"},
+      {"word": "wave", "meaning": "[명] 파도, 물결"},
+      {"word": "sand", "meaning": "[명] 모래"},
+      {"word": "desert", "meaning": "[명] 사막"},
+      {"word": "field", "meaning": "[명] 1. 들판, 밭 2. 경기장"},
+      {"word": "wood", "meaning": "[명] 1. 나무, 목재 2. (-s) 숲"},
+      {"word": "forest", "meaning": "[명] 숲"},
+      {"word": "jungle", "meaning": "[명] 밀림, 정글"},
+    ]
+  },
+  "day39": {
+    "title": "DAY 39 날씨, 계절",
+    "words": [
+      {"word": "sunny", "meaning": "[형] 화창한, 맑은"},
+      {"word": "cloudy", "meaning": "[형] 흐린, 구름이 낀"},
+      {"word": "clear", "meaning": "[형] (날씨가) 맑은"},
+      {"word": "hot", "meaning": "[형] 1. 더운, 뜨거운 2. 매운"},
+      {"word": "cold", "meaning": "[형] 차가운, 추운 [명] 감기"},
+      {"word": "warm", "meaning": "[형] 따뜻한"},
+      {"word": "cool", "meaning": "[형] 1. 시원한, 서늘한 2. 멋진"},
+      {"word": "windy", "meaning": "[형] 바람이 많이 부는"},
+      {"word": "foggy", "meaning": "[형] 안개 낀"},
+      {"word": "heat", "meaning": "[명] 1. 열, 열기 2. 더위 [동] 뜨겁게 하다, 데우다"},
+      {"word": "rain", "meaning": "[명] 비 [동] 비가 오다"},
+      {"word": "snow", "meaning": "[명] 눈 [동] 눈이 오다"},
+      {"word": "rainbow", "meaning": "[명] 무지개"},
+      {"word": "weather", "meaning": "[명] 날씨"},
+      {"word": "spring", "meaning": "[명] 봄"},
+      {"word": "summer", "meaning": "[명] 여름"},
+      {"word": "fall", "meaning": "[명] 가을 (= autumn) [동] 떨어지다"},
+      {"word": "winter", "meaning": "[명] 겨울"},
+      {"word": "season", "meaning": "[명] 1. 계절 2. 철, 시기"},
+      {"word": "at first", "meaning": "처음에는"},
+    ]
+  },
+  "day40": {
+    "title": "DAY 40 사회, 세계",
+    "words": [
+      {"word": "earth", "meaning": "[명] 지구"},
+      {"word": "world", "meaning": "[명] 세계"},
+      {"word": "country", "meaning": "[명] 1. 나라, 국가 2. 시골"},
+      {"word": "nation", "meaning": "[명] 1. 국가 2. (한 국가의 전체) 국민"},
+      {"word": "area", "meaning": "[명] 1. 지역 2. (특정 용도의) 구역"},
+      {"word": "ocean", "meaning": "[명] 바다, 대양"},
+      {"word": "help", "meaning": "[동] 돕다, 거들다 [명] 도움"},
+      {"word": "build", "meaning": "[동] (건물을) 짓다, 건축하다"},
+      {"word": "save", "meaning": "[동] 1. 구하다 2. (돈을) 모으다 3. 아끼다, 절약하다"},
+      {"word": "oil", "meaning": "[명] 기름, 석유"},
+      {"word": "gas", "meaning": "[명] 1. 기체, 가스 2. 휘발유 (= gasoline)"},
+      {"word": "energy", "meaning": "[명] 1. 에너지 2. 활기, 기운"},
+      {"word": "waste", "meaning": "[동] 낭비하다 [명] 1. 낭비 2. 쓰레기"},
+      {"word": "garbage", "meaning": "[명] 쓰레기"},
+      {"word": "war", "meaning": "[명] 전쟁"},
+      {"word": "peace", "meaning": "[명] 평화"},
+      {"word": "step", "meaning": "[명] 1. (발)걸음 2. 단계"},
+      {"word": "protect", "meaning": "[동] 보호하다, 지키다"},
+      {"word": "harmony", "meaning": "[명] 조화, 화합"},
+      {"word": "in need", "meaning": "어려움에 처한"},
+    ]
+  },
+};
+
+        // ============ 상태 변수 ============
+        let currentDay = null;
+        let currentWords = [];
+        let currentIndex = 0;
+        let wrongWordsSession = []; // 현재 테스트에서 틀린 것
+        let correctCount = 0;
+        let testMode = 'normal'; // normal, reverse, listening, speed
+        let testAnswered = false;
+        let timerInterval = null;
+        let timeLeft = 5;
+        let isFromWrongNote = false; // 오답노트에서 온 것인지
+        
+        // ============ 초기화 ============
+        function init() {
+            renderDayGrid();
+            updateWrongNoteBadge();
+        }
+        
+        // ============ 오답노트 (localStorage) ============
+        function getWrongNote() {
+            const data = localStorage.getItem('vocabWrongNote');
+            return data ? JSON.parse(data) : [];
+        }
+        
+        function saveWrongNote(words) {
+            localStorage.setItem('vocabWrongNote', JSON.stringify(words));
+            updateWrongNoteBadge();
+        }
+        
+        function addToWrongNote(word) {
+            const wrongNote = getWrongNote();
+            // 중복 체크
+            if (!wrongNote.find(w => w.word === word.word)) {
+                wrongNote.push(word);
+                saveWrongNote(wrongNote);
+            }
+        }
+        
+        function removeFromWrongNote(wordText) {
+            const wrongNote = getWrongNote();
+            const filtered = wrongNote.filter(w => w.word !== wordText);
+            saveWrongNote(filtered);
+            renderWrongNoteList();
+        }
+        
+        function clearWrongNote() {
+            if (confirm('오답노트를 모두 삭제할까요?')) {
+                localStorage.removeItem('vocabWrongNote');
+                updateWrongNoteBadge();
+                renderWrongNoteList();
+            }
+        }
+        
+        function updateWrongNoteBadge() {
+            const wrongNote = getWrongNote();
+            const badge = document.getElementById('wrongNoteBadge');
+            const btn = document.getElementById('wrongNoteBtn');
+            badge.textContent = wrongNote.length;
+            btn.disabled = wrongNote.length === 0;
+        }
+        
+        // ============ 화면 전환 ============
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function showDaySelect() {
+            stopTimer();
+            showScreen('daySelectScreen');
+            updateWrongNoteBadge();
+        }
+        
+        function showModeSelect() {
+            stopTimer();
+            showScreen('modeSelectScreen');
+        }
+        
+        // ============ DAY 선택 ============
+        function renderDayGrid() {
+            const grid = document.getElementById('dayGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(vocabData).forEach(key => {
+                const day = vocabData[key];
+                const dayNum = key.replace('day', '');
+                const theme = day.title.replace(/DAY \d+ /, '');
+                
+                const btn = document.createElement('button');
+                btn.className = 'day-btn';
+                btn.innerHTML = `
+                    <span class="day-num">DAY ${parseInt(dayNum)}</span>
+                    <span class="day-theme">${theme}</span>
+                `;
+                btn.onclick = () => selectDay(key);
+                grid.appendChild(btn);
+            });
+        }
+        
+        function selectDay(dayKey) {
+            currentDay = dayKey;
+            isFromWrongNote = false;
+            
+            document.getElementById('selectedDayTitle').textContent = vocabData[dayKey].title;
+            document.getElementById('wordCountText').textContent = `${vocabData[dayKey].words.length}개 단어`;
+            
+            showScreen('modeSelectScreen');
+        }
+        
+        // ============ 학습 모드 ============
+        function startStudy() {
+            currentWords = isFromWrongNote ? [...getWrongNote()] : [...vocabData[currentDay].words];
+            currentIndex = 0;
+            
+            const label = isFromWrongNote ? '오답노트' : vocabData[currentDay].title.split(' ').slice(0, 2).join(' ');
+            document.getElementById('studyDayLabel').textContent = label;
+            
+            showScreen('studyScreen');
+            showStudyWord();
+        }
+        
+        function showStudyWord() {
+            if (currentWords.length === 0) return;
+            
+            const word = currentWords[currentIndex];
+            document.getElementById('studyWord').textContent = word.word;
+            document.getElementById('studyMeaning').textContent = word.meaning;
+            updateStudyProgress();
+            speakWord(word.word);
+        }
+        
+        function prevStudyWord() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showStudyWord();
+            }
+        }
+        
+        function nextStudyWord() {
+            if (currentIndex < currentWords.length - 1) {
+                currentIndex++;
+                showStudyWord();
+            } else {
+                if (confirm('학습 완료! 테스트를 시작할까요?')) {
+                    startTest('normal');
+                }
+            }
+        }
+        
+        function updateStudyProgress() {
+            const total = currentWords.length;
+            const current = currentIndex + 1;
+            const percent = (current / total) * 100;
+            
+            document.getElementById('studyProgress').textContent = `${current} / ${total}`;
+            document.getElementById('studyProgressBar').style.width = `${percent}%`;
+        }
+        
+        // ============ 테스트 모드 ============
+        function startTest(mode) {
+            testMode = mode;
+            currentIndex = 0;
+            wrongWordsSession = [];
+            correctCount = 0;
+            testAnswered = false;
+            
+            // 단어 준비
+            currentWords = isFromWrongNote ? [...getWrongNote()] : [...vocabData[currentDay].words];
+            shuffleArray(currentWords);
+            
+            // UI 설정
+            const label = isFromWrongNote ? '오답노트' : vocabData[currentDay].title.split(' ').slice(0, 2).join(' ');
+            document.getElementById('testDayLabel').textContent = label;
+            
+            const modeLabels = {
+                'normal': '테스트',
+                'reverse': '역방향',
+                'listening': '듣기',
+                'speed': '⚡스피드'
+            };
+            document.getElementById('testModeLabel').textContent = modeLabels[mode];
+            
+            // 타이머 표시 여부
+            document.getElementById('timerContainer').style.display = mode === 'speed' ? 'block' : 'none';
+            
+            showScreen('testScreen');
+            showTestQuestion();
+        }
+        
+        function showTestQuestion() {
+            testAnswered = false;
+            const word = currentWords[currentIndex];
+            
+            // 질문 영역 설정
+            document.getElementById('normalQuestion').style.display = 'none';
+            document.getElementById('reverseQuestion').style.display = 'none';
+            document.getElementById('listeningQuestion').style.display = 'none';
+            
+            if (testMode === 'reverse') {
+                // 역방향: 뜻 보여주고 단어 맞추기
+                document.getElementById('reverseQuestion').style.display = 'block';
+                document.getElementById('testMeaning').textContent = word.meaning;
+                renderWordChoices(word);
+            } else if (testMode === 'listening') {
+                // 듣기: 발음만
+                document.getElementById('listeningQuestion').style.display = 'block';
+                renderMeaningChoices(word);
+                speakWord(word.word);
+            } else {
+                // 일반/스피드: 단어 보여주고 뜻 맞추기
+                document.getElementById('normalQuestion').style.display = 'block';
+                document.getElementById('testWord').textContent = word.word;
+                renderMeaningChoices(word);
+                speakWord(word.word);
+            }
+            
+            updateTestProgress();
+            
+            // 스피드 모드 타이머
+            if (testMode === 'speed') {
+                startTimer();
+            }
+        }
+        
+        function renderMeaningChoices(correctWord) {
+            const allMeanings = (isFromWrongNote ? getWrongNote() : vocabData[currentDay].words).map(w => w.meaning);
+            const choices = [correctWord.meaning];
+            
+            const otherMeanings = allMeanings.filter(m => m !== correctWord.meaning);
+            shuffleArray(otherMeanings);
+            
+            for (let i = 0; i < 3 && i < otherMeanings.length; i++) {
+                choices.push(otherMeanings[i]);
+            }
+            
+            shuffleArray(choices);
+            renderChoices(choices, correctWord.meaning, 'meaning');
+        }
+        
+        function renderWordChoices(correctWord) {
+            const allWords = (isFromWrongNote ? getWrongNote() : vocabData[currentDay].words).map(w => w.word);
+            const choices = [correctWord.word];
+            
+            const otherWords = allWords.filter(w => w !== correctWord.word);
+            shuffleArray(otherWords);
+            
+            for (let i = 0; i < 3 && i < otherWords.length; i++) {
+                choices.push(otherWords[i]);
+            }
+            
+            shuffleArray(choices);
+            renderChoices(choices, correctWord.word, 'word');
+        }
+        
+        function renderChoices(choices, correctAnswer, type) {
+            const container = document.getElementById('choicesContainer');
+            container.innerHTML = '';
+            
+            const labels = ['①', '②', '③', '④'];
+            
+            choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.dataset.answer = choice;
+                
+                const displayText = type === 'meaning' ? choice.replace(/\n/g, ' / ') : choice;
+                btn.innerHTML = `<span class="choice-number">${labels[index]}</span>${displayText}`;
+                btn.onclick = () => selectAnswer(btn, choice, correctAnswer);
+                container.appendChild(btn);
+            });
+        }
+        
+        function selectAnswer(selectedBtn, selectedAnswer, correctAnswer) {
+            if (testAnswered) return;
+            testAnswered = true;
+            stopTimer();
+            
+            const word = currentWords[currentIndex];
+            const isCorrect = selectedAnswer === correctAnswer;
+            
+            // 버튼 상태 업데이트
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.add('disabled');
+                if (btn.dataset.answer === correctAnswer) {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                selectedBtn.classList.add('wrong');
+                wrongWordsSession.push(word);
+                addToWrongNote(word); // 오답노트에 추가
+            }
+            
+            // 다음 문제
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex >= currentWords.length) {
+                    showResult();
+                } else {
+                    showTestQuestion();
+                }
+            }, 1000);
+        }
+        
+        function updateTestProgress() {
+            const total = currentWords.length;
+            const current = currentIndex + 1;
+            const percent = (current / total) * 100;
+            
+            document.getElementById('testProgress').textContent = `${current} / ${total}`;
+            document.getElementById('testProgressBar').style.width = `${percent}%`;
+        }
+        
+        // ============ 스피드 모드 타이머 ============
+        function startTimer() {
+            timeLeft = 5;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    timeOut();
+                }
+            }, 100);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function updateTimerDisplay() {
+            const fill = document.getElementById('timerFill');
+            const text = document.getElementById('timerText');
+            
+            const percent = (timeLeft / 5) * 100;
+            fill.style.width = `${percent}%`;
+            text.textContent = Math.max(0, timeLeft).toFixed(1);
+            
+            text.classList.remove('warning', 'danger');
+            if (timeLeft <= 2) {
+                text.classList.add('danger');
+            } else if (timeLeft <= 3) {
+                text.classList.add('warning');
+            }
+        }
+        
+        function timeOut() {
+            if (testAnswered) return;
+            testAnswered = true;
+            stopTimer();
+            
+            const word = currentWords[currentIndex];
+            const correctAnswer = testMode === 'reverse' ? word.word : word.meaning;
+            
+            // 정답 표시
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.add('disabled');
+                if (btn.dataset.answer === correctAnswer) {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            wrongWordsSession.push(word);
+            addToWrongNote(word);
+            
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex >= currentWords.length) {
+                    showResult();
+                } else {
+                    showTestQuestion();
+                }
+            }, 1000);
+        }
+        
+        function exitTest() {
+            stopTimer();
+            if (confirm('테스트를 종료할까요?')) {
+                showModeSelect();
+            }
+        }
+        
+        // ============ 결과 화면 ============
+        function showResult() {
+            stopTimer();
+            
+            const total = currentWords.length;
+            const wrongCount = wrongWordsSession.length;
+            
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            
+            const resultCard = document.querySelector('.result-card');
+            const reviewBtn = document.getElementById('reviewWrongBtn');
+            
+            if (wrongCount === 0) {
+                document.getElementById('resultIcon').textContent = '🎉';
+                document.getElementById('resultTitle').textContent = '완벽합니다!';
+                document.getElementById('resultSubtitle').textContent = '모든 단어를 맞혔어요!';
+                resultCard.classList.add('perfect-score');
+                reviewBtn.style.display = 'none';
+            } else {
+                document.getElementById('resultIcon').textContent = '📝';
+                document.getElementById('resultTitle').textContent = '테스트 완료!';
+                document.getElementById('resultSubtitle').textContent = `틀린 ${wrongCount}개 단어가 오답노트에 추가되었습니다`;
+                resultCard.classList.remove('perfect-score');
+                reviewBtn.style.display = 'block';
+                reviewBtn.textContent = `📖 틀린 ${wrongCount}개 단어 학습하기`;
+            }
+            
+            showScreen('resultScreen');
+            updateWrongNoteBadge();
+        }
+        
+        function reviewWrongWords() {
+            if (wrongWordsSession.length === 0) return;
+            currentWords = [...wrongWordsSession];
+            currentIndex = 0;
+            
+            document.getElementById('studyDayLabel').textContent = '오답 복습';
+            showScreen('studyScreen');
+            showStudyWord();
+        }
+        
+        function retryTest() {
+            startTest(testMode);
+        }
+        
+        // ============ 오답노트 화면 ============
+        function showWrongNote() {
+            renderWrongNoteList();
+            showScreen('wrongNoteScreen');
+        }
+        
+        function renderWrongNoteList() {
+            const wrongNote = getWrongNote();
+            const listEl = document.getElementById('wrongList');
+            const studyBtn = document.getElementById('studyWrongBtn');
+            const testBtn = document.getElementById('testWrongBtn');
+            const clearBtn = document.getElementById('clearAllBtn');
+            
+            if (wrongNote.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✨</div>
+                        <p>오답노트가 비어있습니다</p>
+                        <p style="font-size:0.9rem; margin-top:8px;">테스트에서 틀린 단어가 자동으로 추가됩니다</p>
+                    </div>
+                `;
+                studyBtn.style.display = 'none';
+                testBtn.style.display = 'none';
+                clearBtn.style.display = 'none';
+            } else {
+                listEl.innerHTML = wrongNote.map(w => `
+                    <div class="wrong-item">
+                        <span class="wrong-item-word">${w.word}</span>
+                        <span class="wrong-item-meaning">${w.meaning.replace(/\n/g, ' / ').substring(0, 30)}...</span>
+                        <button class="wrong-item-delete" onclick="removeFromWrongNote('${w.word}')" title="삭제">×</button>
+                    </div>
+                `).join('');
+                studyBtn.style.display = 'flex';
+                testBtn.style.display = 'flex';
+                clearBtn.style.display = 'block';
+            }
+        }
+        
+        function studyWrongNote() {
+            const wrongNote = getWrongNote();
+            if (wrongNote.length === 0) return;
+            
+            isFromWrongNote = true;
+            currentDay = null;
+            startStudy();
+        }
+        
+        function testWrongNote() {
+            const wrongNote = getWrongNote();
+            if (wrongNote.length < 4) {
+                alert('오답노트에 최소 4개 이상의 단어가 필요합니다.');
+                return;
+            }
+            
+            isFromWrongNote = true;
+            currentDay = null;
+            startTest('normal');
+        }
+        
+        // ============ TTS ============
+        function speakWord(wordText) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(wordText);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                utterance.pitch = 1;
+                
+                const voices = speechSynthesis.getVoices();
+                const englishVoice = voices.find(v => v.lang.includes('en-US') || v.lang.includes('en-GB'));
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function speakCurrentWord() {
+            if (currentWords[currentIndex]) {
+                speakWord(currentWords[currentIndex].word);
+            }
+        }
+        
+        // ============ 유틸리티 ============
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // 음성 목록 로드
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+        
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            // 학습 모드
+            if (document.getElementById('studyScreen').classList.contains('active')) {
+                if (e.key === 'ArrowLeft') prevStudyWord();
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    nextStudyWord();
+                }
+                if (e.key === 's') speakCurrentWord();
+            }
+            
+            // 테스트 모드
+            if (document.getElementById('testScreen').classList.contains('active') && !testAnswered) {
+                const keyNum = parseInt(e.key);
+                if (keyNum >= 1 && keyNum <= 4) {
+                    const btns = document.querySelectorAll('.choice-btn');
+                    if (btns[keyNum - 1]) btns[keyNum - 1].click();
+                }
+                if (e.key === 's') speakCurrentWord();
+            }
+        });
+        
+        // 초기화 실행
+        init();
+    </script>
+</body>
+</html>
